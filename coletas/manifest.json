@@ -1,0 +1,149 @@
+{
+  "dataset": "COLETAS_FABIO_SANTIAGO_TRADER",
+  "cutoff": "2026-09-30",
+  "transport": "b64x2: payload binário/comprimido codificado em Base64 duas vezes; decode_coletas.py desfaz automaticamente.",
+  "notes": [
+    "Arquivos 5s/10s são guardados bit a bit dentro de um tar.xz.",
+    "RAWs grandes usam F9RAW: preserva numericamente todas as colunas, omitindo apenas timestamp_utc/timestamp_brt porque são derivados de at_ns.",
+    "O decoder reconstrói CSVs normalizados; a formatação textual pode mudar sem alterar os valores numéricos."
+  ],
+  "repository_files": [
+    "small/coletas_5s_10s_ate_2026-09-30.tar.xz.b64x2",
+    "raw/AUDNZD_OTC/audnzd_otc_raw_2026-09-28_29.f9raw.xz.part001.b64x2",
+    "raw/AUDNZD_OTC/audnzd_otc_raw_2026-09-28_29.f9raw.xz.part002.b64x2",
+    "raw/NZDUSD/nzdusd_raw_2026-09-29.f9raw.xz.b64x2",
+    "raw/SOLUSD/solusd_raw_2026-09-29_30.f9raw.xz.b64x2",
+    "raw/XAUUSD/xauusd_raw_2026-09-29.f9raw.xz.b64x2",
+    "tools/decode_coletas.py"
+  ],
+  "files": [
+    {
+      "source_file": "dados_aig_otc_5s_20260924(4).csv",
+      "size_bytes": 1505,
+      "lines": 21,
+      "sha256_original": "ccca78ceee63f696ca8a7f09673b82965ca5bc3adeff0609d5af8c09189fa952",
+      "storage": "SMALL_ARCHIVE"
+    },
+    {
+      "source_file": "dados_aig_otc_5s_id2109_20260924(20260930-152039).csv",
+      "size_bytes": 827908,
+      "lines": 9805,
+      "sha256_original": "722534d6b6ea51d4bd27625c9faae45acf90c3129b5eac3408a20ff9ba002467",
+      "storage": "SMALL_ARCHIVE"
+    },
+    {
+      "source_file": "dados_audjpy_otc_5s(8).csv",
+      "size_bytes": 102642,
+      "lines": 1031,
+      "sha256_original": "c90110df37176ab409945361762ba0213a70b07afa592d822e94688ed29a16de",
+      "storage": "SMALL_ARCHIVE"
+    },
+    {
+      "source_file": "dados_audnzd_otc_5s(9).csv",
+      "size_bytes": 112731,
+      "lines": 1090,
+      "sha256_original": "3fdb5dea844dd16fae15df8a0306aa4b4b159ebaf6084aae92240be4fe7c2c29",
+      "storage": "SMALL_ARCHIVE"
+    },
+    {
+      "source_file": "dados_audnzd_otc_RAW(3).csv",
+      "size_bytes": 35310866,
+      "lines": 109396,
+      "sha256_original": "51db06d6189841bab1cf9ca836e78dc27c78793c85ee83892a72a5d490a4259e",
+      "storage": "F9RAW"
+    },
+    {
+      "source_file": "dados_btcusd_10s(3).csv",
+      "size_bytes": 99781,
+      "lines": 1518,
+      "sha256_original": "c970897c87bc669795169c96cd05bf25013c717d010bbc42230a316e042126d1",
+      "storage": "SMALL_ARCHIVE"
+    },
+    {
+      "source_file": "dados_btcusd_5s(2).csv",
+      "size_bytes": 198019,
+      "lines": 3036,
+      "sha256_original": "bd0cba096a36b4ca8c81e81ed262f5e012cc28f2bc9feac57fef1d1a84bf3805",
+      "storage": "SMALL_ARCHIVE"
+    },
+    {
+      "source_file": "dados_cadjpy_otc_10s(3).csv",
+      "size_bytes": 41,
+      "lines": 1,
+      "sha256_original": "07e5473902f2f31363f2ea2caa7ea2234f5922c228ee211e549fe6268d28f432",
+      "storage": "SMALL_ARCHIVE",
+      "note": "somente cabeçalho"
+    },
+    {
+      "source_file": "dados_cadjpy_otc_5s(3).csv",
+      "size_bytes": 41,
+      "lines": 1,
+      "sha256_original": "07e5473902f2f31363f2ea2caa7ea2234f5922c228ee211e549fe6268d28f432",
+      "storage": "SMALL_ARCHIVE",
+      "note": "somente cabeçalho"
+    },
+    {
+      "source_file": "dados_eurjpy_otc_10s(5).csv",
+      "size_bytes": 57934,
+      "lines": 777,
+      "sha256_original": "1c70e20e26960d90d07b1845c8c4da63de6cba5f7e04347230b2a38cf617059f",
+      "storage": "SMALL_ARCHIVE"
+    },
+    {
+      "source_file": "dados_eurjpy_otc_5s(5).csv",
+      "size_bytes": 115991,
+      "lines": 1556,
+      "sha256_original": "a1209d514bcba34aa891ce30f07045f04c4a78d66945fb749416568f6ba95243",
+      "storage": "SMALL_ARCHIVE"
+    },
+    {
+      "source_file": "dados_eurusd_otc_10s(10).csv",
+      "size_bytes": 89756,
+      "lines": 1352,
+      "sha256_original": "8dca38ec3a1d2f973362011eb0dfd3dffa670d10dacdb7600bdfdade16458a90",
+      "storage": "SMALL_ARCHIVE"
+    },
+    {
+      "source_file": "dados_nzdusd_RAW(3).csv",
+      "size_bytes": 24031740,
+      "lines": 74917,
+      "sha256_original": "2223fcf9afb0f3ed83c6449d6902bc5da922fc18408826d4696bf92ea308311d",
+      "storage": "F9RAW"
+    },
+    {
+      "source_file": "dados_solusd_RAW(1).csv",
+      "size_bytes": 20082059,
+      "lines": 56926,
+      "sha256_original": "1d6313006cb04be3527cc5d5186cc5408d3d5e9f4334a70d88087198f6abc7a1",
+      "storage": "F9RAW"
+    },
+    {
+      "source_file": "dados_usdbrl_10s(5).csv",
+      "size_bytes": 15713,
+      "lines": 261,
+      "sha256_original": "b4d40fda9b862889b0b546ed3581ef8673dd2d97571c7deefceee4e84ed5b1b3",
+      "storage": "SMALL_ARCHIVE"
+    },
+    {
+      "source_file": "dados_usdbrl_5s(5).csv",
+      "size_bytes": 31342,
+      "lines": 522,
+      "sha256_original": "4795693775b5d8c22358d120b102ec445c44f44388c66b7b603b6c69aed4ee8e",
+      "storage": "SMALL_ARCHIVE"
+    },
+    {
+      "source_file": "dados_usdcad_otc_5s_id2112_20260925(6).csv",
+      "size_bytes": 166755,
+      "lines": 1803,
+      "sha256_original": "1c66f8ac25cdc408b31ff73a9ba526976c68d2d758586f3b209e643181bbcc35",
+      "storage": "SMALL_ARCHIVE"
+    },
+    {
+      "source_file": "dados_xauusd_RAW(1).csv",
+      "size_bytes": 23492798,
+      "lines": 63878,
+      "sha256_original": "c91b9e2c246ea9337fb9a3d89e4d0ee10019d5c7b6f1aeb5ba19f9be66cb71cb",
+      "storage": "F9RAW"
+    }
+  ]
+}
