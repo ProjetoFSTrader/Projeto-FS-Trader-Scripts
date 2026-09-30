@@ -1,5 +1,11 @@
--- F10 M1 OFICIAL - congelado em 2026-09-30
-instrument{name="F10 M1 OFICIAL",icon="jpg",overlay=true}
+-- ============================================================
+-- F10 V7 OFICIAL
+-- Substitui o F10 V6 como operacional principal.
+-- Ajustes: latch real por M1, continuação respeitando rearme e
+-- rearme rápido condicionado liberado com 2 ou 1 velas restantes.
+-- H, extremos, lateralização e restante do motor preservados.
+-- ============================================================
+instrument{name="F10 V7 OFICIAL",icon="jpg",overlay=true}
 input_group{"Periodo Max/Min",doch_time=input{default="10",type=input.string}}
 input_group{"Periodo da Micro Tendencia",emaa_per=input{default="10",type=input.string}}
 input_group{"Candles",
@@ -185,8 +191,6 @@ rearme_obs_cor=input{default="#8E24AA",type=input.color}}
 local rearme_ultima_dir=make_series()
 local rearme_hold_dir=make_series()
 local rearme_hold_restante=make_series()
-local lock_id=make_series()
-local lock_dir=make_series()
 rearme_dir_anterior=nz(rearme_ultima_dir[1],0)
 rearme_hold_anterior=nz(rearme_hold_dir[1],0)
 rearme_restante_anterior=nz(rearme_hold_restante[1],0)
@@ -199,10 +203,51 @@ candidato_compra=sinal_compra_base or troca_antecipada_compra
 candidato_venda=sinal_venda_base or troca_antecipada_venda
 rearme_bloqueia_venda=false
 rearme_bloqueia_compra=false
+
+-- F10 V4: rearme rapido condicionado.
+-- Nao reduz a memoria de 3 velas. So abre excecao na 3a vela
+-- quando a estrutura antiga voltou com eficiencia, sem quebrar
+-- o descanso e longe do extremo/H.
+rr_mov_fechado=range_1+range_2+range_3+range_4+range_5
+rr_prog_up=close[1]-close[5]
+rr_prog_dn=close[5]-close[1]
+rr_eff_up=(rr_mov_fechado>0)and(rr_prog_up/rr_mov_fechado*100)or 0
+rr_eff_dn=(rr_mov_fechado>0)and(rr_prog_dn/rr_mov_fechado*100)or 0
+rr_eff_min=tonumber(s8_fluxo_eficiencia_txt)
+
+rr_descanso_up=regime_alta_fechado and(close[1]>EMAA[1])and
+              (low[1]>=min(low[2],low[3])-media_range_s8*0.10)and
+              ((abs(close[1]-open[1])<=media_range_s8*0.65)or
+               (close[1]<=close[2]+media_range_s8*0.20))
+
+rr_descanso_dn=regime_baixa_fechado and(close[1]<EMAA[1])and
+              (high[1]<=max(high[2],high[3])+media_range_s8*0.10)and
+              ((abs(close[1]-open[1])<=media_range_s8*0.65)or
+               (close[1]>=close[2]-media_range_s8*0.20))
+
+rr_retomou_up=TA and(close>close[1]+media_range_s8*0.15)and
+              (corpo_atual>=media_range_s8*0.25)and(pavio_superior_pct<45)
+
+rr_retomou_dn=TB and(close<close[1]-media_range_s8*0.15)and
+              (corpo_atual>=media_range_s8*0.25)and(pavio_inferior_pct<45)
+
+rr_longe_topo=(not f9_ultima_no_topo)and(not s9lite_alta_madura)and(not aviso_extremo_compra)
+rr_longe_fundo=(not f9_ultima_no_fundo)and(not s9lite_baixa_madura)and(not aviso_extremo_venda)
+
+rearme_rapido_compra=(rearme_restante_anterior>=1)and(rearme_restante_anterior<=2)and(rearme_hold_anterior==-1)and
+                     candidato_compra and(rr_eff_up>=rr_eff_min)and(alternancias_5<=2)and
+                     rr_descanso_up and rr_retomou_up and rr_longe_topo and
+                     (not falso_fluxo_s8)and(not perna_esticada)
+
+rearme_rapido_venda=(rearme_restante_anterior>=1)and(rearme_restante_anterior<=2)and(rearme_hold_anterior==1)and
+                    candidato_venda and(rr_eff_dn>=rr_eff_min)and(alternancias_5<=2)and
+                    rr_descanso_dn and rr_retomou_dn and rr_longe_fundo and
+                    (not falso_fluxo_s8)and(not perna_esticada)
+
 if rearme_restante_anterior>0 then
-if(rearme_hold_anterior==1)and candidato_venda and(not rearme_quebra_para_venda)then
+if(rearme_hold_anterior==1)and candidato_venda and(not rearme_quebra_para_venda)and(not rearme_rapido_venda)then
 rearme_bloqueia_venda=true
-elseif(rearme_hold_anterior==-1)and candidato_compra and(not rearme_quebra_para_compra)then
+elseif(rearme_hold_anterior==-1)and candidato_compra and(not rearme_quebra_para_compra)and(not rearme_rapido_compra)then
 rearme_bloqueia_compra=true
 end
 end
@@ -213,8 +258,8 @@ cx_libera_compra=s9lite_retomou_alta and regime_alta_fechado and TA
 cx_libera_venda=s9lite_retomou_baixa and regime_baixa_fechado and TB
 sinal_compra=sinal_compra and((not micro_caixote)or cx_libera_compra)
 sinal_venda=sinal_venda and((not micro_caixote)or cx_libera_venda)
-cont_compra=(not sinal_compra)and(not micro_caixote)and cx_libera_compra and(not falso_fluxo_s8)and(not perna_esticada)and(not freio_pos_compra)and(not ponta_compra_s8)and(not f9_bloqueia_compra)
-cont_venda=(not sinal_venda)and(not micro_caixote)and cx_libera_venda and(not falso_fluxo_s8)and(not perna_esticada)and(not freio_pos_venda)and(not ponta_venda_s8)and(not f9_bloqueia_venda)
+cont_compra=(not sinal_compra)and(not rearme_bloqueia_compra)and(not micro_caixote)and cx_libera_compra and(not falso_fluxo_s8)and(not perna_esticada)and(not freio_pos_compra)and(not ponta_compra_s8)and(not f9_bloqueia_compra)
+cont_venda=(not sinal_venda)and(not rearme_bloqueia_venda)and(not micro_caixote)and cx_libera_venda and(not falso_fluxo_s8)and(not perna_esticada)and(not freio_pos_venda)and(not ponta_venda_s8)and(not f9_bloqueia_venda)
 sinal_compra=sinal_compra or cont_compra
 sinal_venda=sinal_venda or cont_venda
 hb=(range_1+range_2+range_3+range_4+range_5)/5
@@ -265,26 +310,33 @@ preco_virou_contra_venda=(rearme_dir_anterior==-1)and(close>close[3])and(close>E
 preco_virou_contra_compra=(rearme_dir_anterior==1)and(close<close[3])and(close<EMAA)
 sinal_compra=sinal_compra and(not fim_perna_compra)and(not pavio_dominante_compra)and(not preco_virou_contra_compra)
 sinal_venda=sinal_venda and(not fim_perna_venda)and(not pavio_dominante_venda)and(not preco_virou_contra_venda)
-vela_id=time
-lock_id0=nz(lock_id[1],0)
-lock_dir0=nz(lock_dir[1],0)
-if lock_id0==vela_id and lock_dir0~=0 then
-sinal_compra=false
-sinal_venda=false
-end
-if sinal_compra then
-lock_id:set(vela_id)
-lock_dir:set(1)
-elseif sinal_venda then
-lock_id:set(vela_id)
-lock_dir:set(-1)
-elseif lock_id0==vela_id then
-lock_id:set(vela_id)
-lock_dir:set(lock_dir0)
+-- F10 V7 OFICIAL: latch real da primeira decisao da M1.
+-- Mandou Comprar: a M1 fica Compra. Mandou Vender: a M1 fica Venda.
+-- A decisao nao pode trocar de lado nem desaparecer por recalculo intrabar.
+local f10_bar_mem=make_series("F10V7_DIR_BAR")
+local f10_dir_mem=make_series("F10V7_DIR")
+f10_agora=get_value(open_time,0)
+f10_mesma=(get_value(f10_bar_mem,-1)==f10_agora)
+
+if f10_mesma then
+f10_dir=get_value(f10_dir_mem,0)
 else
-lock_id:set(0)
-lock_dir:set(0)
+f10_dir=0
 end
+
+if f10_dir==0 then
+if sinal_compra and(not sinal_venda)then
+f10_dir=1
+elseif sinal_venda and(not sinal_compra)then
+f10_dir=-1
+end
+end
+
+f10_bar_mem:set(f10_agora)
+f10_dir_mem:set(f10_dir)
+
+sinal_compra=(f10_dir==1)
+sinal_venda=(f10_dir==-1)
 rearme_dir_atual=rearme_dir_anterior
 if sinal_compra then
 rearme_dir_atual=1
