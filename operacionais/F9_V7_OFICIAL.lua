@@ -1,4 +1,4 @@
-instrument{name="F9 V7",icon="jpg",overlay=true}
+instrument{name="FS Trader F9 V7",icon="jpg",overlay=true}
 EMAA=ema(close,10);upper=highest(high,10);lower=lowest(low,10);TA=(close>close[1])and(close>EMAA)and(EMAA>EMAA[1]);TB=(close<close[1])and(close<EMAA)and(EMAA<EMAA[1])
 ra=high-low;r1=high[1]-low[1];r2=high[2]-low[2];r3=high[3]-low[3];r4=high[4]-low[4];r5=high[5]-low[5];r6=high[6]-low[6];r7=high[7]-low[7]
 r8=high[8]-low[8];r9=high[9]-low[9];r10=high[10]-low[10];r11=high[11]-low[11];r12=high[12]-low[12];r13=high[13]-low[13];r14=high[14]-low[14]
@@ -48,6 +48,6 @@ ftok=ft and ftp and((close[2]>close[4])or((high[2]-low[4])>=fr*1.10))and ftr and
 fbok=fb and fbp and((close[2]<close[4])or((high[4]-low[2])>=fr*1.10))and fbr and(fbd or fpi>=22)and((not flat)or(fbp and fbd and fbr and fam))
 bar="#787b86";if TA then bar="#0bd104" elseif TB then bar="#f70202" end;plot_candle(open,high,low,close,"ES",bar);plot(upper,"Resistencia","#FF8C00");plot(lower,"Suporte","#00FF66")
 plot_shape(hs,"HS",shape_style.diamond,shape_size.large,"#FF9800",shape_location.abovebar,0,"H","#FFFFFF");plot_shape(hy,"HB",shape_style.diamond,shape_size.large,"#00E5FF",shape_location.belowbar,0,"H","#FFFFFF")
-if sC then plot_shape(1,"BUY",shape_style.arrowup,shape_size.large,"#0bd104",shape_location.belowbar,0,"Compra","#fcfc04") elseif sV then plot_shape(1,"SELL",shape_style.arrowdown,shape_size.large,"#f70202",shape_location.abovebar,0,"Venda","#fcfc01") end
+if sC then plot_shape(1,"BUY",shape_style.arrowup,shape_size.large,"#0bd104",shape_location.belowbar,0,"C\nFS","#fcfc04") elseif sV then plot_shape(1,"SELL",shape_style.arrowdown,shape_size.large,"#f70202",shape_location.abovebar,0,"V\nFS","#fcfc01") end
 plot_shape(ftok,"F_TOP",shape_style.triangledown,shape_size.large,"#ff8c00",shape_location.abovebar,-2,"F","#ff8c00");plot_shape(fbok,"F_BOT",shape_style.triangleup,shape_size.large,"#00ff88",shape_location.belowbar,-2,"F","#00ff88")
 local function m15(c)c1=c.high;c2=c.low end;sc=security(current_ticker_id,"15m");if sc then m15(sc);plot(c1,"C1","#FF3EB5",2,0,style.levels,na_mode.continue);plot(c2,"C2","#FF3EB5",2,0,style.levels,na_mode.continue)end
