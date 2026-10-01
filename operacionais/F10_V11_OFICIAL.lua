@@ -1,4 +1,4 @@
-instrument{name="F10 V11",icon="jpg",overlay=true}
+instrument{name="FS Trader F10 V11",icon="jpg",overlay=true}
 input_group{"Periodo Max/Min",doch_time=input{default="10",type=input.string}}
 input_group{"Periodo da Micro Tendencia",emaa_per=input{default="10",type=input.string}}
 input_group{"Candles",
@@ -349,15 +349,15 @@ input_group{"UP COLOR",call_color=input{default="#0bd104",type=input.color}}
 input_group{"DOWN COLOR",put_color=input{default="#f70202",type=input.color}}
 if sinal_compra then
 if micro_contexto_fraco_final or aviso_extremo_compra or transicao_freia_compra or s9_alerta_topo_compra then
-plot_shape(1,'Bull_UP_FRACO',shape_style.arrowup,shape_size.large,call_color,shape_location.belowbar,0,"Compra","#fcfc04")
+plot_shape(1,'Bull_UP_FRACO',shape_style.arrowup,shape_size.large,call_color,shape_location.belowbar,0,"C\nFS","#fcfc04")
 else
-plot_shape(1,'Bull_UP',shape_style.arrowup,shape_size.large,call_color,shape_location.belowbar,0,"Compra","#fcfc04")
+plot_shape(1,'Bull_UP',shape_style.arrowup,shape_size.large,call_color,shape_location.belowbar,0,"C\nFS","#fcfc04")
 end
 elseif sinal_venda then
 if micro_contexto_fraco_final or aviso_extremo_venda or transicao_freia_venda or s9_alerta_fundo_venda then
-plot_shape(1,'Bear_DOWN_FRACO',shape_style.arrowdown,shape_size.large,put_color,shape_location.abovebar,0,"Venda","#fcfc01")
+plot_shape(1,'Bear_DOWN_FRACO',shape_style.arrowdown,shape_size.large,put_color,shape_location.abovebar,0,"V\nFS","#fcfc01")
 else
-plot_shape(1,'Bear_DOWN',shape_style.arrowdown,shape_size.large,put_color,shape_location.abovebar,0,"Venda","#fcfc01")
+plot_shape(1,'Bear_DOWN',shape_style.arrowdown,shape_size.large,put_color,shape_location.abovebar,0,"V\nFS","#fcfc01")
 end
 end
 method_id=input(1,"Type",input.string_selection,{"M1 "})
