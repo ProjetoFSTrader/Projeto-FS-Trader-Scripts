@@ -303,13 +303,11 @@ preco_virou_contra_venda=(rearme_dir_anterior==-1)and(close>close[3])and(close>E
 preco_virou_contra_compra=(rearme_dir_anterior==1)and(close<close[3])and(close<EMAA)
 sinal_compra=sinal_compra and(not fim_perna_compra)and(not pavio_dominante_compra)and(not preco_virou_contra_compra)
 sinal_venda=sinal_venda and(not fim_perna_venda)and(not pavio_dominante_venda)and(not preco_virou_contra_venda)
--- TRAVA REAL DA M1 + CORTE DE 30S.
--- A primeira direcao valida nasce somente ate 30s e fica fixa ate o fechamento.
-s1=security(current_ticker_id,"1s")
-sg=date(get_value(s1.open_time,get_value(open_time,0))).sec
+-- TRAVA DA PRIMEIRA DIRECAO DA M1, SEM SECURITY DE 1S.
+-- A primeira direcao valida fica fixa ate o fechamento da vela.
 ot=get_value(open_time,0)
 if sb~=ot then sb=ot;sd=0;hm=0 end
-if sd==0 and sg<=30 then
+if sd==0 then
 if sinal_compra and(not sinal_venda)then sd=1
 elseif sinal_venda and(not sinal_compra)then sd=-1 end
 end
