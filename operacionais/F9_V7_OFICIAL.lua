@@ -12,7 +12,13 @@ d1=(close[1]>open[1])and 1 or((close[1]<open[1])and-1 or 0);d2=(close[2]>open[2]
 d4=(close[4]>open[4])and 1 or((close[4]<open[4])and-1 or 0);d5=(close[5]>open[5])and 1 or((close[5]<open[5])and-1 or 0)
 alt=((d1~=0)and(d2~=0)and(d1~=d2)and 1 or 0)+((d2~=0)and(d3~=0)and(d2~=d3)and 1 or 0)+((d3~=0)and(d4~=0)and(d3~=d4)and 1 or 0)+((d4~=0)and(d5~=0)and(d4~=d5)and 1 or 0)
 mf=ra+r1+r2+r3+r4+r5;eff=(mf>0)and(abs(close-close[5])/mf*100)or 100;falso=(alt>=3)and(eff<18);rgA=(close[1]>EMAA[1])and(EMAA[1]>=EMAA[2]);rgB=(close[1]<EMAA[1])and(EMAA[1]<=EMAA[2])
-sC=TA and(not lat)and(not latc)and(co>mr15*.20)and(not est)and(not fc)and(not falso);sV=TB and(not lat)and(not latc)and(co>mr15*.20)and(not est)and(not fv)and(not falso)
+pfS=(m5>0)and(abs(close-close[5])>=m5*4.5);rejSC=psp>=30;rejSV=pip>=30
+ptC=pfS and pr and(((m5>0)and(co/m5*100<70))or rejSC);ptV=pfS and pf and(((m5>0)and(co/m5*100<70))or rejSV)
+s9a=rgA and pfS and pr;s9b=rgB and pfS and pf
+s9pa=(close[1]<=close[2]+m5*.18)or rejSC;s9pb=(close[1]>=close[2]-m5*.18)or rejSV
+s9ra=(close>high[1])and(close>open)and(co>m5*.40);s9rb=(close<low[1])and(close<open)and(co>m5*.40)
+s9bc=s9a and s9pa and(not s9ra);s9bv=s9b and s9pb and(not s9rb)
+sC=TA and(not lat)and(not latc)and(co>mr15*.20)and(not est)and(not fc)and(not falso)and(not ptC)and(not s9bc);sV=TB and(not lat)and(not latc)and(co>mr15*.20)and(not est)and(not fv)and(not falso)and(not ptV)and(not s9bv)
 hb=m5;hc=(ra>0)and(co/ra*100)or 0;ht=max(high[1],max(high[2],high[3]));hf=min(low[1],min(low[2],low[3]))
 hpa=(hb>0)and((close[1]-close[6])>=hb*1.50)and(close[1]>close[3]);hpb=(hb>0)and((close[6]-close[1])>=hb*1.50)and(close[1]<close[3])
 hes=(high>=ht)and((high-ht)<=hb*.20);heb=(low<=hf)and((hf-low)<=hb*.20);hfs=(high[1]>=max(high[2],high[3]))and(high<=high[1]+hb*.05);hfb=(low[1]<=min(low[2],low[3]))and(low>=low[1]-hb*.05)
@@ -26,8 +32,14 @@ p1s=high[1]-max(open[1],close[1]);p1i=min(open[1],close[1])-low[1];p1sp=(r1>0)an
 uf=(low[1]-lowest(low[1],10))<=m5*.35;ut=(highest(high[1],10)-high[1])<=m5*.35
 rejV=rgB and uf and(p1ip>=40)and((close[6]-close[1])>=m5*1.25)and(not(close<low[1]-m5*.05 and close<open and co>=m5*.20))
 rejC=rgA and ut and(p1sp>=40)and((close[1]-close[6])>=m5*1.25)and(not(close>high[1]+m5*.05 and close>open and co>=m5*.20));sV=sV and(not rejV);sC=sC and(not rejC)
-local ld=make_series();ant=nz(ld[1],0);cxh=highest(high[1],4);cxl=lowest(low[1],4);cxa=cxh-cxl;cxb=(m5>0)and(cxa<=m5*2.10)and((alt>=2)or(eff<20))
-brC=(close>cxh)and(close>open)and(co>=m5*.25);brV=(close<cxl)and(close<open)and(co>=m5*.25);if cxb then if(ant==-1)and sC and(not brC)then sC=false elseif(ant==1)and sV and(not brV)then sV=false end end
+local ld=make_series();ant=nz(ld[1],0);cxh=highest(high[1],4);cxl=lowest(low[1],4);cxa=cxh-cxl
+cxm=r1+r2+r3+r4;cxef=(cxm>0)and(abs(close[1]-close[4])/cxm*100)or 100
+cxb=(m5>0)and(cxa<=m5*2.10)and((alt>=2)or(cxef<20))
+brC=(close>cxh)and(close>open)and(co>=m5*.25);brV=(close<cxl)and(close<open)and(co>=m5*.25)
+if cxb then
+sC=sC and brC
+sV=sV and brV
+end
 
 -- descanso por pavio grande: memoria curta de 3 velas fechadas
 d2s=high[2]-max(open[2],close[2]);d2i=min(open[2],close[2])-low[2];d3s=high[3]-max(open[3],close[3]);d3i=min(open[3],close[3])-low[3]
