@@ -196,47 +196,34 @@ candidato_compra=sinal_compra_base or troca_antecipada_compra
 candidato_venda=sinal_venda_base or troca_antecipada_venda
 rearme_bloqueia_venda=false
 rearme_bloqueia_compra=false
-
--- F10 V4: rearme rapido condicionado.
--- Nao reduz a memoria de 3 velas. So abre excecao na 3a vela
--- quando a estrutura antiga voltou com eficiencia, sem quebrar
--- o descanso e longe do extremo/H.
 rr_mov_fechado=range_1+range_2+range_3+range_4+range_5
 rr_prog_up=close[1]-close[5]
 rr_prog_dn=close[5]-close[1]
 rr_eff_up=(rr_mov_fechado>0)and(rr_prog_up/rr_mov_fechado*100)or 0
 rr_eff_dn=(rr_mov_fechado>0)and(rr_prog_dn/rr_mov_fechado*100)or 0
 rr_eff_min=tonumber(s8_fluxo_eficiencia_txt)
-
 rr_descanso_up=regime_alta_fechado and(close[1]>EMAA[1])and
-              (low[1]>=min(low[2],low[3])-media_range_s8*0.10)and
-              ((abs(close[1]-open[1])<=media_range_s8*0.65)or
-               (close[1]<=close[2]+media_range_s8*0.20))
-
+(low[1]>=min(low[2],low[3])-media_range_s8*0.10)and
+((abs(close[1]-open[1])<=media_range_s8*0.65)or
+(close[1]<=close[2]+media_range_s8*0.20))
 rr_descanso_dn=regime_baixa_fechado and(close[1]<EMAA[1])and
-              (high[1]<=max(high[2],high[3])+media_range_s8*0.10)and
-              ((abs(close[1]-open[1])<=media_range_s8*0.65)or
-               (close[1]>=close[2]-media_range_s8*0.20))
-
+(high[1]<=max(high[2],high[3])+media_range_s8*0.10)and
+((abs(close[1]-open[1])<=media_range_s8*0.65)or
+(close[1]>=close[2]-media_range_s8*0.20))
 rr_retomou_up=TA and(close>close[1]+media_range_s8*0.15)and
-              (corpo_atual>=media_range_s8*0.25)and(pavio_superior_pct<45)
-
+(corpo_atual>=media_range_s8*0.25)and(pavio_superior_pct<45)
 rr_retomou_dn=TB and(close<close[1]-media_range_s8*0.15)and
-              (corpo_atual>=media_range_s8*0.25)and(pavio_inferior_pct<45)
-
+(corpo_atual>=media_range_s8*0.25)and(pavio_inferior_pct<45)
 rr_longe_topo=(not f9_ultima_no_topo)and(not s9lite_alta_madura)and(not aviso_extremo_compra)
 rr_longe_fundo=(not f9_ultima_no_fundo)and(not s9lite_baixa_madura)and(not aviso_extremo_venda)
-
 rearme_rapido_compra=(rearme_restante_anterior==1)and(rearme_hold_anterior==-1)and
-                     candidato_compra and(rr_eff_up>=rr_eff_min)and(alternancias_5<=2)and
-                     rr_descanso_up and rr_retomou_up and rr_longe_topo and
-                     (not falso_fluxo_s8)and(not perna_esticada)
-
+candidato_compra and(rr_eff_up>=rr_eff_min)and(alternancias_5<=2)and
+rr_descanso_up and rr_retomou_up and rr_longe_topo and
+(not falso_fluxo_s8)and(not perna_esticada)
 rearme_rapido_venda=(rearme_restante_anterior==1)and(rearme_hold_anterior==1)and
-                    candidato_venda and(rr_eff_dn>=rr_eff_min)and(alternancias_5<=2)and
-                    rr_descanso_dn and rr_retomou_dn and rr_longe_fundo and
-                    (not falso_fluxo_s8)and(not perna_esticada)
-
+candidato_venda and(rr_eff_dn>=rr_eff_min)and(alternancias_5<=2)and
+rr_descanso_dn and rr_retomou_dn and rr_longe_fundo and
+(not falso_fluxo_s8)and(not perna_esticada)
 if rearme_restante_anterior>0 then
 if(rearme_hold_anterior==1)and candidato_venda and(not rearme_quebra_para_venda)and(not rearme_rapido_venda)then
 rearme_bloqueia_venda=true
@@ -303,8 +290,15 @@ preco_virou_contra_venda=(rearme_dir_anterior==-1)and(close>close[3])and(close>E
 preco_virou_contra_compra=(rearme_dir_anterior==1)and(close<close[3])and(close<EMAA)
 sinal_compra=sinal_compra and(not fim_perna_compra)and(not pavio_dominante_compra)and(not preco_virou_contra_compra)
 sinal_venda=sinal_venda and(not fim_perna_venda)and(not pavio_dominante_venda)and(not preco_virou_contra_venda)
--- TRAVA DA PRIMEIRA DIRECAO DA M1, SEM SECURITY DE 1S.
--- A primeira direcao valida fica fixa ate o fechamento da vela.
+d1=range_1;d2=range_2;d3=range_3
+ds1=high[1]-max(open[1],close[1]);ds2=high[2]-max(open[2],close[2]);ds3=high[3]-max(open[3],close[3])
+di1=min(open[1],close[1])-low[1];di2=min(open[2],close[2])-low[2];di3=min(open[3],close[3])-low[3]
+dpS1=(d1>0)and(ds1/d1*100)or 0;dpS2=(d2>0)and(ds2/d2*100)or 0;dpS3=(d3>0)and(ds3/d3*100)or 0
+dpI1=(d1>0)and(di1/d1*100)or 0;dpI2=(d2>0)and(di2/d2*100)or 0;dpI3=(d3>0)and(di3/d3*100)or 0
+dBc=(close>open)and(corpo_atual>=media_range_s8*.25);dBv=(close<open)and(corpo_atual>=media_range_s8*.25)
+dbC=((dpS1>=38)and(not(dBc and close>high[1])))or((dpS2>=38)and(not(dBc and close>high[2])))or((dpS3>=38)and(not(dBc and close>high[3])))
+dbV=((dpI1>=38)and(not(dBv and close<low[1])))or((dpI2>=38)and(not(dBv and close<low[2])))or((dpI3>=38)and(not(dBv and close<low[3])))
+sinal_compra=sinal_compra and(not dbC);sinal_venda=sinal_venda and(not dbV)
 ot=get_value(open_time,0)
 if sb~=ot then sb=ot;sd=0;hm=0 end
 if sd==0 then
@@ -313,7 +307,6 @@ elseif sinal_venda and(not sinal_compra)then sd=-1 end
 end
 sinal_compra=sd==1
 sinal_venda=sd==-1
--- H visual persistente na vela: apareceu, permanece desenhado ate fechar.
 if hm==0 then
 if hs then hm=1 elseif hy then hm=-1 end
 end
