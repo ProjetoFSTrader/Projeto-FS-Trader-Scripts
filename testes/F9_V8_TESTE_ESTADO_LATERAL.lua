@@ -63,7 +63,7 @@ ft=(high[2]>high[1])and(high[2]>high)and(high[2]>high[3])and(high[2]>high[4]);fb
 ftd=(high[2]-max(high[1],high[3]))>=fp;fbd=(min(low[1],low[3])-low[2])>=fp;ftr=(fps>=22)or(close[1]<close[2])or(close<close[1]);fbr=(fpi>=22)or(close[1]>close[2])or(close>close[1]);fam=(fr>0)and(fa>=fr*2.2);flat=(alt>=3)and(eff<18)and(not fam)
 ftok=ft and ftp and((close[2]>close[4])or((high[2]-low[4])>=fr*1.10))and ftr and(ftd or fps>=22)and((not flat)or(ftp and ftd and ftr and fam))
 fbok=fb and fbp and((close[2]<close[4])or((high[4]-low[2])>=fr*1.10))and fbr and(fbd or fpi>=22)and((not flat)or(fbp and fbd and fbr and fam))
-bar="#787b86";if TA then bar="#0bd104" elseif TB then bar="#f70202" end;plot_candle(open,high,low,close,"ES",bar);plot(upper,"Resistencia","#FF8C00");plot(lower,"Suporte","#00FF66")
+bar="#D8D8D8";if TA then bar="#00FF3C" elseif TB then bar="#FF1744" end;plot_candle(open,high,low,close,"ES",bar);plot(upper,"Resistencia","#FF8C00");plot(lower,"Suporte","#00FF66")
 plot_shape(hs,"HS",shape_style.diamond,shape_size.large,"#FF9800",shape_location.abovebar,0,"H","#FFFFFF");plot_shape(hy,"HB",shape_style.diamond,shape_size.large,"#00E5FF",shape_location.belowbar,0,"H","#FFFFFF")
 if sC then plot_shape(1,"BUY",shape_style.arrowup,shape_size.large,"#0bd104",shape_location.belowbar,0,"C\nFS","#fcfc04") elseif sV then plot_shape(1,"SELL",shape_style.arrowdown,shape_size.large,"#f70202",shape_location.abovebar,0,"V\nFS","#fcfc01") end
 plot_shape(ftok,"F_TOP",shape_style.triangledown,shape_size.large,"#ff8c00",shape_location.abovebar,-2,"F","#ff8c00");plot_shape(fbok,"F_BOT",shape_style.triangleup,shape_size.large,"#00ff88",shape_location.belowbar,-2,"F","#00ff88")
