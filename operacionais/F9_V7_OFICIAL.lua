@@ -28,6 +28,16 @@ rejV=rgB and uf and(p1ip>=40)and((close[6]-close[1])>=m5*1.25)and(not(close<low[
 rejC=rgA and ut and(p1sp>=40)and((close[1]-close[6])>=m5*1.25)and(not(close>high[1]+m5*.05 and close>open and co>=m5*.20));sV=sV and(not rejV);sC=sC and(not rejC)
 local ld=make_series();ant=nz(ld[1],0);cxh=highest(high[1],4);cxl=lowest(low[1],4);cxa=cxh-cxl;cxb=(m5>0)and(cxa<=m5*2.10)and((alt>=2)or(eff<20))
 brC=(close>cxh)and(close>open)and(co>=m5*.25);brV=(close<cxl)and(close<open)and(co>=m5*.25);if cxb then if(ant==-1)and sC and(not brC)then sC=false elseif(ant==1)and sV and(not brV)then sV=false end end
+
+-- descanso por pavio grande: memoria curta de 3 velas fechadas
+d2s=high[2]-max(open[2],close[2]);d2i=min(open[2],close[2])-low[2];d3s=high[3]-max(open[3],close[3]);d3i=min(open[3],close[3])-low[3]
+d2sp=(r2>0)and(d2s/r2*100)or 0;d2ip=(r2>0)and(d2i/r2*100)or 0;d3sp=(r3>0)and(d3s/r3*100)or 0;d3ip=(r3>0)and(d3i/r3*100)or 0
+dc1=(close>high[1])and(close>open)and(co>=m5*.25);dc2=(close>high[2])and(close>open)and(co>=m5*.25);dc3=(close>high[3])and(close>open)and(co>=m5*.25)
+dv1=(close<low[1])and(close<open)and(co>=m5*.25);dv2=(close<low[2])and(close<open)and(co>=m5*.25);dv3=(close<low[3])and(close<open)and(co>=m5*.25)
+dbC=((p1sp>=38)and(not dc1))or((d2sp>=38)and(not dc2))or((d3sp>=38)and(not dc3))
+dbV=((p1ip>=38)and(not dv1))or((d2ip>=38)and(not dv2))or((d3ip>=38)and(not dv3))
+sC=sC and(not dbC);sV=sV and(not dbV)
+
 ot=get_value(open_time,0);if sb~=ot then sb=ot;sd=0 end
 if sd==0 then if sC and(not sV)then sd=1 elseif sV and(not sC)then sd=-1 end end;sC=sd==1;sV=sd==-1
 nova=ant;if sC then nova=1 elseif sV then nova=-1 end;ld:set(nova)
