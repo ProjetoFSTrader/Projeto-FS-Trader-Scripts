@@ -1,0 +1,379 @@
+instrument { name = "Fabio Trader V8.8 - Continuidade Lapidada", icon="jpg", overlay = true }
+input_group {
+    "Compra",
+    comprar_color = input {default = "green", type = input.color}
+}
+input_group {
+    "Periodo Max/Min",
+    doch_time = input {default = "12", type = input.string}
+}
+input_group {
+    "Periodo da Micro Tendencia",
+    emaa_per = input {default = "12", type = input.string}
+}
+input_group {
+    "Periodo da  Macro Tendencia",
+    emab_per = input {default = "100", type = input.string}
+}
+input_group {
+    "Media Rapida",
+    emac_per = input {default = "4", type = input.string}
+}
+input_group {
+    "Media Lenta",
+    emad_per = input {default = "15", type = input.string}
+}
+input_group {
+    "Venda",
+    vender_color = input {default = "#fcf805", type = input.color}
+}
+input_group {
+    "Candles",
+    positivo = input { default = "#0bd104",type = input.color },
+    negativo = input { default = "#f70202",  type = input.color },
+}
+EMAA   = ema(close,emaa_per)
+EMAB   = ema(close,emab_per)
+EMAC   = ema(hlc3,emac_per)
+EMAD   = ema(hlc3,emad_per)
+upper  = highest (high, doch_time)
+lower  = lowest  (low,  doch_time)
+TA    = ((close > close[1]) and (close > EMAA) and (EMAA > EMAA[1]))
+TB    = ((close < close[1]) and (close < EMAA) and (EMAA < EMAA[1]))
+ENC   = ((EMAC[1] < EMAD[1]) and (EMAC > EMAD))
+ENV   = ((EMAC[1] > EMAD[1]) and (EMAC < EMAD))
+sec = security (current_ticker_id, "1m")
+if sec then
+local bar_color
+if (TA == true) then
+    bar_color = positivo
+elseif (TB == true) then
+    bar_color = negativo
+else
+    bar_color = neutro
+end
+    plot_candle (open, high, low, close, "ES", bar_color)
+    plot (upper, "Resistencia", upline_color)
+    plot (lower, "Suporte",lowline_color)
+end
+-- Bolinhas grandes Bull/Bear Engulfing removidas na faxina visual
+input_group { "UP - UP COLOR", call_color = input { default="#0bd104", type = input.color } }
+input_group { "DOWN - DOWN COLOR", put_color = input { default="#f70202", type = input.color } }
+input_group {
+    "Filtros 3X Lapidado",
+    fractal_top_color = input { default = "#ff8c00", type = input.color },
+    fractal_bottom_color = input { default = "#00ff88", type = input.color },
+    lateral_color = input { default = "#808080", type = input.color }
+}
+range_8 = highest(high, 8) - lowest(low, 8)
+range_ref = highest(high, doch_time) - lowest(low, doch_time)
+range_atual = high - low
+range_1 = high[1] - low[1]
+range_2 = high[2] - low[2]
+range_3 = high[3] - low[3]
+media_range = (range_atual + range_1 + range_2 + range_3) / 4
+corpo_atual = abs(close - open)
+corpo_1 = abs(close[1] - open[1])
+corpo_2 = abs(close[2] - open[2])
+media_gap = abs(EMAC - EMAD)
+
+-- V8.5 TESTE: trava leve para evitar seta em vela de descanso/fraca
+-- Ideia: se a vela atual ainda nao rompeu a maxima/minima anterior e tem corpo pequeno,
+-- ela fica como observacao. A seta deve nascer quando existir confirmacao minima de forca.
+vela_fraca_atual =
+    (media_range > 0) and
+    (corpo_atual < (media_range * 0.45))
+
+bloqueia_compra_descanso =
+    vela_fraca_atual and
+    (close > open) and
+    (close <= high[1])
+
+bloqueia_venda_descanso =
+    vela_fraca_atual and
+    (close < open) and
+    (close >= low[1])
+
+-- V6 TESTE: bloqueio adicional para lateralizacao larga com velas grandes
+alternancia_lateral =
+    ((close > open) and (close[1] < open[1]) and (close[2] > open[2])) or
+    ((close < open) and (close[1] > open[1]) and (close[2] < open[2]))
+
+lateralizacao_larga =
+    (range_ref > 0) and
+    (media_range > 0) and
+    (range_8 > (range_ref * 0.45)) and
+    (media_gap < (media_range * 0.22)) and
+    alternancia_lateral
+
+lateralizacao =
+    -- V8.2: trava de lateralizacao mais forte para reduzir sinal invertido em mercado travado
+    ((range_ref > 0) and (range_8 < (range_ref * 0.30))) or
+    ((media_range > 0) and (range_atual < (media_range * 0.70)) and (range_1 < (media_range * 0.70))) or
+    ((media_range > 0) and (corpo_atual < (media_range * 0.35)) and (corpo_1 < (media_range * 0.35))) or
+    ((media_range > 0) and (media_gap < (media_range * 0.16))) or lateralizacao_larga
+fractal_topo_base =
+    (high[2] > high[1]) and
+    (high[2] > high) and
+    (high[2] > high[3]) and
+    (high[2] > high[4])
+fractal_fundo_base =
+    (low[2] < low[1]) and
+    (low[2] < low) and
+    (low[2] < low[3]) and
+    (low[2] < low[4])
+fractal_topo_forte =
+    fractal_topo_base and
+    (high[2] >= upper[2]) and
+    (close < close[1]) and
+    (close[1] < high[2]) and
+    ((range_ref > 0 and (high[2] - low[2]) > (range_ref * 0.10)) or (corpo_2 > media_range * 0.45)) and
+    not lateralizacao
+fractal_fundo_forte =
+    fractal_fundo_base and
+    (low[2] <= lower[2]) and
+    (close > close[1]) and
+    (close[1] > low[2]) and
+    ((range_ref > 0 and (high[2] - low[2]) > (range_ref * 0.10)) or (corpo_2 > media_range * 0.45)) and
+    not lateralizacao
+plot_shape(fractal_topo_forte,
+        'Fractal_Topo_Limpo',
+        shape_style.triangledown,
+        shape_size.large,
+        fractal_top_color,
+        shape_location.abovebar,
+        -2,
+        "F",
+        fractal_top_color
+)
+plot_shape(fractal_fundo_forte,
+        'Fractal_Fundo_Limpo',
+        shape_style.triangleup,
+        shape_size.large,
+        fractal_bottom_color,
+        shape_location.belowbar,
+        -2,
+        "F",
+        fractal_bottom_color
+)
+pre_topo_aviso =
+    (range_ref > 0) and
+    (high >= (upper - (range_ref * 0.05))) and
+    (close < open) and
+    (high >= high[1]) and
+    (corpo_atual > (media_range * 0.35)) and
+    not lateralizacao
+pre_fundo_aviso =
+    (range_ref > 0) and
+    (low <= (lower + (range_ref * 0.05))) and
+    (close > open) and
+    (low <= low[1]) and
+    (corpo_atual > (media_range * 0.35)) and
+    not lateralizacao
+-- plot_shape circle removido na faxina visual
+-- plot_shape circle removido na faxina visual
+queda_curta = (close[2] < open[2]) or (close[3] < open[3])
+alta_curta = (close[2] > open[2]) or (close[3] > open[3])
+rev_compra_rapida =
+    queda_curta and
+    (close > open) and
+    (close > high[1]) and
+    (close > EMAA) and
+    ((low[1] <= lower[1]) or fractal_fundo_base) and
+    ((corpo_atual + corpo_1) > (media_range * 0.75))
+rev_compra_rapida_anterior =
+    ((close[1] > open[1]) and (close[2] > open[2]) and (close[1] > high[2]))
+rev_venda_rapida =
+    alta_curta and
+    (close < open) and
+    (close < low[1]) and
+    (close < EMAA) and
+    ((high[1] >= upper[1]) or fractal_topo_base) and
+    ((corpo_atual + corpo_1) > (media_range * 0.75))
+rev_venda_rapida_anterior =
+    ((close[1] < open[1]) and (close[2] < open[2]) and (close[1] < low[2]))
+compra_original =
+    ((close > close[1]) and (close[1] > open[2]) and (close[3] > close[2])) and
+    not ((close[1] > close[2]) and (close[2] > open[3]) and (close[4] > close[3]))
+venda_original =
+    ((close < close[1]) and (close[1] < open[2]) and (close[3] < close[2])) and
+    not ((close[1] < close[2]) and (close[2] < open[3]) and (close[4] < close[3]))
+cont_compra_tendencia =
+    (close > open) and
+    (close[1] > open[1]) and
+    (close > close[1]) and
+    (close[1] > close[2]) and
+    (close > EMAA) and
+    (EMAA >= EMAA[1]) and
+    (EMAC >= EMAD) and
+    -- V8.2: compra um pouco menos atrasada em alta limpa
+    ((corpo_atual + corpo_1) > (media_range * 0.90))
+cont_compra_tendencia_anterior =
+    (close[1] > open[1]) and
+    (close[2] > open[2]) and
+    (close[1] > close[2]) and
+    (close[2] > close[3]) and
+    (close[1] > EMAA[1]) and
+    (EMAA[1] >= EMAA[2]) and
+    (EMAC[1] >= EMAD[1]) and
+    ((corpo_1 + corpo_2) > (media_range * 0.90))
+cont_venda_tendencia =
+    (close < open) and
+    (close[1] < open[1]) and
+    (close < close[1]) and
+    (close[1] < close[2]) and
+    (close < EMAA) and
+    (EMAA <= EMAA[1]) and
+    (EMAC <= EMAD) and
+    ((corpo_atual + corpo_1) > (media_range * 0.85))
+cont_venda_tendencia_anterior =
+    (close[1] < open[1]) and
+    (close[2] < open[2]) and
+    (close[1] < close[2]) and
+    (close[2] < close[3]) and
+    (close[1] < EMAA[1]) and
+    (EMAA[1] <= EMAA[2]) and
+    (EMAC[1] <= EMAD[1]) and
+    ((corpo_1 + corpo_2) > (media_range * 0.85))
+cont_compra_v7 = cont_compra_tendencia and not cont_compra_tendencia_anterior
+cont_venda_v7  = cont_venda_tendencia and not cont_venda_tendencia_anterior
+compra_cansada_resistencia =
+    (range_ref > 0) and
+    (close > open) and
+    (close[1] > open[1]) and
+    (close[2] > open[2]) and
+    ((high >= upper) or (high[1] >= upper[1]) or (close >= (upper - (range_ref * 0.08)))) and
+    ((corpo_atual + corpo_1 + corpo_2) > (media_range * 1.75))
+venda_cansada_suporte =
+    (range_ref > 0) and
+    (close < open) and
+    (close[1] < open[1]) and
+    (close[2] < open[2]) and
+    ((low <= lower) or (low[1] <= lower[1]) or (close <= (lower + (range_ref * 0.08)))) and
+    ((corpo_atual + corpo_1 + corpo_2) > (media_range * 1.75))
+compra_estourada_resistencia =
+    (range_ref > 0) and
+    (close > open) and
+    (high >= (upper - (range_ref * 0.04))) and
+    (corpo_atual > (media_range * 0.95))
+venda_estourada_suporte =
+    (range_ref > 0) and
+    (close < open) and
+    (low <= (lower + (range_ref * 0.04))) and
+    (corpo_atual > (media_range * 0.95))
+bloqueia_compra_fim_movimento = compra_cansada_resistencia or compra_estourada_resistencia
+bloqueia_venda_fim_movimento = venda_cansada_suporte or venda_estourada_suporte
+
+compra_alta_limpa_v82 =
+    -- Compra extra somente em alta limpa, longe da resistencia, para tentar pegar subida sem liberar lateralizacao
+    (range_ref > 0) and
+    (not lateralizacao) and
+    (close > open) and
+    (close > high[1]) and
+    (close > EMAA) and
+    (EMAA >= EMAA[1]) and
+    (EMAC >= EMAD) and
+    (corpo_atual > (media_range * 0.75)) and
+    (high < (upper - (range_ref * 0.05)))
+
+compra_final =
+    (not lateralizacao) and
+    (not bloqueia_compra_fim_movimento) and
+    (not bloqueia_compra_descanso) and
+    (
+        compra_original or
+        rev_compra_rapida or
+        cont_compra_v7 or
+        compra_alta_limpa_v82
+    )
+venda_final =
+    (not lateralizacao) and
+    (not bloqueia_venda_fim_movimento) and
+    (not bloqueia_venda_descanso) and
+    (
+        venda_original or
+        rev_venda_rapida or
+        cont_venda_v7
+    )
+if compra_final then
+    plot_shape(1,
+            'Bull_UP',
+            shape_style.arrowup,
+            shape_size.large,
+            call_color,
+            shape_location.belowbar,
+            0,
+            "Compra",
+            "#fcfc04"
+                       )
+else
+    if venda_final then
+    plot_shape(1,
+            'Bear_DOWN',
+            shape_style.arrowdown,
+            shape_size.large,
+            put_color,
+            shape_location.abovebar,
+            0,
+            "Venda",
+            "#fcfc01"
+                       )
+    end
+end
+method_id = input (2, "Type", input.string_selection, { "M1 " })
+input_group {
+    "Maxima",
+    level_1_color = input { default = "#FFFFFF", type = input.color },
+    level_1_width = input { default = 2, type = input.line_width }
+}
+input_group {
+    "Minima",
+    level_2_color = input { default = "#FFFFFF", type = input.color },
+    level_2_width = input { default = 2, type = input.line_width }
+}
+local function m15(candle)
+    c1 = candle.high
+    c2 = candle.low
+end
+local methods = { m15 }
+local resolution = "15m"
+sec = security (current_ticker_id, resolution)
+if sec then
+   local method = methods [method_id]
+   method (sec)
+   plot (c1, "C1",   level_1_color, level_1_width, 0, style.levels, na_mode.continue)
+   plot (c2, "C2",   level_2_color, level_2_width, 0, style.levels, na_mode.continue)
+end
+percentage = input (2, "Percentage", input.double, 0.01, 100, 1.0) / 100
+period = 2
+input_group {
+    "front.ind.dpo.generalline",
+    up_color = input { default = "#02f7aa", type = input.color },
+    down_color = input { default = "#f77902", type = input.color },
+    width = input { default = 1, type = input.line_width }
+}
+local reference = make_series ()
+reference:set(nz(reference[1], high))
+local is_direction_up = make_series ()
+is_direction_up:set(nz(is_direction_up[1], true))
+local htrack = make_series ()
+local ltrack = make_series ()
+local pivot = make_series ()
+reverse_range = reference * percentage / 100
+if get_value (is_direction_up) then
+    htrack:set (max(high, nz(htrack[1], high)))
+    if close < htrack[1] - reverse_range then
+        pivot:set (htrack)
+        is_direction_up:set (false)
+        reference:set(htrack)
+    end
+else
+    ltrack:set (min(low, nz(ltrack[1], low)))
+    if close > ltrack[1] + reverse_range then
+        pivot:set (ltrack)
+        is_direction_up:set(true)
+        reference:set (ltrack)
+    end
+end
+color = is_direction_up() and  up_color or down_color
+plot(pivot, 'ZZ', color, width, -1, style.solid_line, na_mode.continue)
