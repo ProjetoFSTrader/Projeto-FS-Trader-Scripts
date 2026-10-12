@@ -1,0 +1,439 @@
+instrument{name="FS M1 02 M5",icon="jpg",overlay=true}
+
+-- BASE F9: motor preservado, visual limpo
+EMAA=ema(close,20);upper=highest(high,20);lower=lowest(low,20)
+TA=(close>close[1])and(close>EMAA)and(EMAA>EMAA[1])
+TB=(close<close[1])and(close<EMAA)and(EMAA<EMAA[1])
+
+ra=high-low;r1=high[1]-low[1];r2=high[2]-low[2];r3=high[3]-low[3];r4=high[4]-low[4];r5=high[5]-low[5];r6=high[6]-low[6];r7=high[7]-low[7]
+r8=high[8]-low[8];r9=high[9]-low[9];r10=high[10]-low[10];r11=high[11]-low[11];r12=high[12]-low[12];r13=high[13]-low[13];r14=high[14]-low[14]
+cu=close>open;cd=close<open;co=abs(close-open);mr=(ra+r1+r2+r3)/4;mr15=(ra+r1+r2+r3+r4+r5+r6+r7+r8+r9+r10+r11+r12+r13+r14)/15;m5=(r1+r2+r3+r4+r5)/5
+
+mt=ra+r1+r2+r3+r4+r5+r6+r7;ef=(mt>0)and(abs(close-close[7])/mt*100)or 100;lat=ef<12
+mc=ra+r1+r2+r3;efc=(mc>0)and(abs(close-close[3])/mc*100)or 100;latc=efc<8
+est=(mr>0)and(abs(close-close[15])>mr*25)or false
+
+m8=(r2+r3+r4+r5+r6+r7+r8+r9)/8;c1=abs(close[1]-open[1]);cp1=(r1>0)and(c1/r1*100)or 0
+ia=(m8>0)and(close[1]>open[1])and(r1>=m8*1.20)and(cp1>=55)
+ib=(m8>0)and(close[1]<open[1])and(r1>=m8*1.20)and(cp1>=55)
+top=highest(high[1],10);bot=lowest(low[1],10);ct=(top-high[1])<=m8*.25;cf=(low[1]-bot)<=m8*.25
+rc=(close>top)and(cu)and(co>=m8*.20);rv=(close<bot)and(cd)and(co>=m8*.20)
+fc=ia and ct and(not rc);fv=ib and cf and(not rv)
+
+ps=high-max(open,close);pi=min(open,close)-low;psp=(ra>0)and(ps/ra*100)or 0;pip=(ra>0)and(pi/ra*100)or 0
+mx=mr*.30;pr=(upper-high)<=mx;pf=(low-lower)<=mx
+
+d1=(close[1]>open[1])and 1 or((close[1]<open[1])and-1 or 0);d2=(close[2]>open[2])and 1 or((close[2]<open[2])and-1 or 0);d3=(close[3]>open[3])and 1 or((close[3]<open[3])and-1 or 0)
+d4=(close[4]>open[4])and 1 or((close[4]<open[4])and-1 or 0);d5=(close[5]>open[5])and 1 or((close[5]<open[5])and-1 or 0)
+alt=((d1~=0)and(d2~=0)and(d1~=d2)and 1 or 0)+((d2~=0)and(d3~=0)and(d2~=d3)and 1 or 0)+((d3~=0)and(d4~=0)and(d3~=d4)and 1 or 0)+((d4~=0)and(d5~=0)and(d4~=d5)and 1 or 0)
+mf=ra+r1+r2+r3+r4+r5;eff=(mf>0)and(abs(close-close[5])/mf*100)or 100;falso=(alt>=3)and(eff<18)
+
+rgA=(close[1]>EMAA[1])and(EMAA[1]>=EMAA[2]);rgB=(close[1]<EMAA[1])and(EMAA[1]<=EMAA[2])
+pfS=(m5>0)and(abs(close-close[5])>=m5*4.5);rejSC=psp>=30;rejSV=pip>=30
+ptC=pfS and pr and(((m5>0)and(co/m5*100<70))or rejSC);ptV=pfS and pf and(((m5>0)and(co/m5*100<70))or rejSV)
+s9a=rgA and pfS and pr;s9b=rgB and pfS and pf
+s9pa=(close[1]<=close[2]+m5*.18)or rejSC;s9pb=(close[1]>=close[2]-m5*.18)or rejSV
+s9ra=(close>high[1])and(cu)and(co>m5*.40);s9rb=(close<low[1])and(cd)and(co>m5*.40)
+s9bc=s9a and s9pa and(not s9ra);s9bv=s9b and s9pb and(not s9rb)
+
+f9m=m5*.30;f9t=highest(high[1],10);f9f=lowest(low[1],10)
+f9tr=((f9t-high[1])<=f9m)and((f9t-high[2])<=f9m);f9fr=((low[1]-f9f)<=f9m)and((low[2]-f9f)<=f9m)
+f9sa=close[1]<=close[2]+m5*.18;f9sb=close[1]>=close[2]-m5*.18
+f9rc=(close>high[1])and(cu)and(co>m5*.40);f9rv=(close<low[1])and(cd)and(co>m5*.40)
+
+-- TESTE V4 / AJUSTE 1: F9 solta retomada real um pouco antes
+-- so libera se houver fluxo, corpo util e novo extremo intrabar
+f9flowC=TA and cu and(m5>0)and(co>=m5*.45)and((ra>0)and(co/ra*100>=55))and(high>high[1]+m5*.05)and(psp<45)
+f9flowV=TB and cd and(m5>0)and(co>=m5*.45)and((ra>0)and(co/ra*100>=55))and(low<low[1]-m5*.05)and(pip<45)
+f9bc=rgA and pr and f9tr and f9sa and(not f9rc)and(not f9flowC)
+f9bv=rgB and pf and f9fr and f9sb and(not f9rv)and(not f9flowV)
+
+-- TESTE V4 / AJUSTE 2: rompimento forte pode derrubar memoria velha de lateral
+latHi=highest(high[1],4);latLo=lowest(low[1],4)
+latbrC=TA and cu and(m5>0)and(co>=m5*.55)and((ra>0)and(co/ra*100>=55))and(close>latHi+m5*.05)and(psp<35)
+latbrV=TB and cd and(m5>0)and(co>=m5*.55)and((ra>0)and(co/ra*100>=55))and(close<latLo-m5*.05)and(pip<35)
+latOKC=((not lat)and(not latc))or latbrC
+latOKV=((not lat)and(not latc))or latbrV
+
+sC=TA and latOKC and(co>mr15*.20)and(not est)and(not fc)and(not falso)and(not ptC)and(not s9bc)and(not f9bc)
+sV=TB and latOKV and(co>mr15*.20)and(not est)and(not fv)and(not falso)and(not ptV)and(not s9bv)and(not f9bv)
+
+-- FS M1 02 / DIRECAO 2.0 + FALHA DA PERNA + MEMORIA INTRABAR
+-- Regra central: a direcao antiga segue valida ate a nova ser provada
+-- OU ate a propria perna ativa ser invalidada por contra-ataque confirmado.
+-- Uma troca de direcao confirmada dentro da vela fica travada ate a proxima vela.
+d2rawC=sC;d2rawV=sV
+d2up=((close[1]>close[2])and 1 or 0)+((close[2]>close[3])and 1 or 0)+((close[3]>close[4])and 1 or 0)+((close[4]>close[5])and 1 or 0)
+d2dn=((close[1]<close[2])and 1 or 0)+((close[2]<close[3])and 1 or 0)+((close[3]<close[4])and 1 or 0)+((close[4]<close[5])and 1 or 0)
+d2sum=r1+r2+r3+r4+r5
+d2mov=close[1]-close[5]
+d2ef=(d2sum>0)and(abs(d2mov)/d2sum*100)or 100
+d2seedC=(m5>0)and(d2up>=3)and(d2mov>=m5*.85)and(d2ef>=28)
+d2seedV=(m5>0)and(d2dn>=3)and((-d2mov)>=m5*.85)and(d2ef>=28)
+d2flat=(d2ef<18)and(d2up>=2)and(d2dn>=2)
+
+d2body=(ra>0)and(co/ra*100)or 0
+d2b1=abs(close[1]-open[1]);d2b2=abs(close[2]-open[2])
+d2breakC=cu and(m5>0)and(co>=m5*.55)and(d2body>=55)and(close>highest(high[1],3)+m5*.05)and(psp<40)
+d2breakV=cd and(m5>0)and(co>=m5*.55)and(d2body>=55)and(close<lowest(low[1],3)-m5*.05)and(pip<40)
+d2confC=(m5>0)and(close[1]>close[2])and(close[2]>close[3])and(close[1]>max(high[2],high[3])+m5*.02)and(max(d2b1,d2b2)>=m5*.25)
+d2confV=(m5>0)and(close[1]<close[2])and(close[2]<close[3])and(close[1]<min(low[2],low[3])-m5*.02)and(max(d2b1,d2b2)>=m5*.25)
+
+local d2z=make_series()
+d2z:set(nz(d2z[1],0))
+d20=nz(d2z[1],0);d2dir=d20
+
+-- FALHA DA PERNA ATIVA:
+-- exige duas velas contra o estado, rompimento da vela anterior, corpo forte
+-- e devolucao minima do deslocamento. Nao transforma simples pullback em reversao.
+d2failC=(d20==-1)and cu and(m5>0)and(close[1]>open[1])and(close>high[1]+m5*.03)and(co>=m5*.45)and(d2body>=55)and(psp<35)and((close-close[2])>=m5*.65)
+d2failV=(d20==1)and cd and(m5>0)and(close[1]<open[1])and(close<low[1]-m5*.03)and(co>=m5*.45)and(d2body>=55)and(pip<35)and((close[2]-close)>=m5*.65)
+
+-- calcula a direcao candidata desta vela
+if d2breakC then
+d2dir=1
+elseif d2breakV then
+d2dir=-1
+elseif d2failC then
+d2dir=1
+elseif d2failV then
+d2dir=-1
+elseif(d20==-1)and d2confC then
+d2dir=1
+elseif(d20==1)and d2confV then
+d2dir=-1
+elseif d2flat then
+d2dir=0
+elseif d20==0 then
+if d2seedC and(not d2seedV)then d2dir=1
+elseif d2seedV and(not d2seedC)then d2dir=-1
+end
+end
+
+-- MEMORIA INTRABAR DA TROCA:
+-- se a vela realmente mudou de lado, nao pode voltar ao estado velho antes de fechar.
+d2ot=get_value(open_time,0)
+if d2bar~=d2ot then d2bar=d2ot;d2hold=0 end
+if d2hold==nil then d2hold=0 end
+if d2hold~=0 then
+d2dir=d2hold
+elseif(d2dir~=0)and(d2dir~=d20)then
+d2hold=d2dir
+end
+
+d2z:set(d2dir)
+
+-- contra a perna ativa so entra depois de prova estrutural.
+-- quando a perna ativa falha, o lado velho perde autoridade imediatamente.
+if(d2dir==-1)and sC and(not d2breakC)and(not d2confC)then sC=false end
+if(d2dir==1)and sV and(not d2breakV)and(not d2confV)then sV=false end
+
+-- Continuidade limpa pode atravessar SOMENTE o veto do H.
+-- E e Ranger continuam soberanos. Vela de descanso continua protegida.
+d2hPassC=(d2dir==1)and d2rawC and cu and(m5>0)and(close>close[1]+m5*.08)and(d2body>=42)and(psp<40)
+d2hPassV=(d2dir==-1)and d2rawV and cd and(m5>0)and(close<close[1]-m5*.08)and(d2body>=42)and(pip<40)
+
+-- H DO A1.2: timing preservado, agora com veto imediato
+hb=m5;hc=(ra>0)and(co/ra*100)or 0;ht=max(high[1],max(high[2],high[3]));hf=min(low[1],min(low[2],low[3]))
+hpa=(hb>0)and((close[1]-close[6])>=hb*1.50)and(close[1]>close[3])
+hpb=(hb>0)and((close[6]-close[1])>=hb*1.50)and(close[1]<close[3])
+hes=(high>=ht)and((high-ht)<=hb*.20);heb=(low<=hf)and((hf-low)<=hb*.20)
+hfs=(high[1]>=max(high[2],high[3]))and(high<=high[1]+hb*.05);hfb=(low[1]<=min(low[2],low[3]))and(low>=low[1]-hb*.05)
+hru=(close>ht+hb*.05)and(cu)and(hc>=55)and(psp<=30);hrd=(close<hf-hb*.05)and(cd)and(hc>=55)and(pip<=30)
+hps=(close<=close[1]+hb*.08)or(psp>=30)or(hc<45);hpx=(close>=close[1]-hb*.08)or(pip>=30)or(hc<45)
+hrs=hpa and pr and(hes or hfs)and hps and(not hru);hrb=hpb and pf and(heb or hfb)and hpx and(not hrd)
+
+-- TESTE V5 / MUDANCA 1: H POR EPISODIO
+-- evita varios H da mesma direcao em descansos seguidos da mesma perna
+-- so rearma depois de nova expansao relevante alem do nivel do H anterior
+local hez=make_series();local hel=make_series();local hea=make_series()
+hez:set(nz(hez[1],0));hel:set(nz(hel[1],close[1]));hea:set(nz(hea[1],0))
+he0=nz(hez[1],0);heL0=nz(hel[1],close[1]);heA0=nz(hea[1],0)
+
+heRelT=(he0==1)and(hb>0)and(close>heL0+hb*1.20)and(cu)and(hc>=50)
+heRelB=(he0==-1)and(hb>0)and(close<heL0-hb*1.20)and(cd)and(hc>=50)
+
+heDir=he0
+if heRelT or heRelB then
+heDir=0;hez:set(0);hea:set(0)
+elseif he0~=0 then
+hea:set(heA0+1)
+else
+hea:set(0)
+end
+
+local hl=make_series();local htl=make_series();local hfl=make_series();local hg=make_series()
+hl:set(nz(hl[1],0));htl:set(nz(htl[1],ht));hfl:set(nz(hfl[1],hf));hg:set(nz(hg[1],0))
+h0=nz(hl[1],0);ha=nz(hg[1],0)
+hs=hrs and(h0~=1)and(heDir~=1)
+hy=hrb and(h0~=-1)and(heDir~=-1)
+hbu=(h0==1)and(close>get_value(htl)+hb*.15)and(cu)and(co>=hb*.40)and(psp<40)
+hbd=(h0==-1)and(close<get_value(hfl)-hb*.15)and(cd)and(co>=hb*.40)and(pip<40)
+hdir=h0
+
+if hs then
+htl:set(max(high,high[1]));hl:set(1);hg:set(0);hdir=1
+hez:set(1);hel:set(max(high,high[1]));hea:set(0)
+elseif hy then
+hfl:set(min(low,low[1]));hl:set(-1);hg:set(0);hdir=-1
+hez:set(-1);hel:set(min(low,low[1]));hea:set(0)
+elseif hbu or hbd then
+hl:set(0);hg:set(0);hdir=0
+elseif h0~=0 then
+if ha>=2 then hl:set(0);hg:set(0);hdir=0 else hg:set(ha+1)end
+else
+hg:set(0)
+end
+
+-- H VETO TRAVADO INTRABAR:
+-- no PRIMEIRO aparecimento do H, trava o veto e nao deixa repaint apagar
+-- topo veta Compra; fundo veta Venda; dura a vela atual + 1 seguinte
+hot=get_value(open_time,0)
+if hvbar~=hot then
+hvbar=hot
+hvmark=0
+if hvnext==1 then
+hvnext=0
+else
+hvdir=0
+end
+end
+if hvdir==nil then hvdir=0 end
+if hvnext==nil then hvnext=0 end
+if hvmark==nil then hvmark=0 end
+
+-- primeiro H da vela ganha, mas rompimento REAL pode cancelar o H prematuro
+if hvmark==0 then
+if hs then
+hvdir=1;hvnext=1;hvmark=1
+elseif hy then
+hvdir=-1;hvnext=1;hvmark=-1
+end
+end
+
+-- TESTE V4 / AJUSTE 3A: H travado nao sobrevive a continuacao forte confirmada
+if(hvmark==1)and hru then
+hvdir=0;hvnext=0;hvmark=0
+hez:set(0);hea:set(0)
+elseif(hvmark==-1)and hrd then
+hvdir=0;hvnext=0;hvmark=0
+hez:set(0);hea:set(0)
+end
+hBC=hvdir==1;hBV=hvdir==-1
+
+-- RANGER TERRITORIAL: caixa + falha de expansao, sem depender do regime
+cxh=highest(high[1],4);cxl=lowest(low[1],4);cxa=cxh-cxl;cxm=r1+r2+r3+r4
+cxef=(cxm>0)and(abs(close[1]-close[4])/cxm*100)or 100
+cxz=(m5>0)and(cxa<=m5*2.60)and((alt>=2)or(cxef<30))
+rtouch=(m5>0)and(high>=cxh-m5*.20);btouch=(m5>0)and(low<=cxl+m5*.20)
+brC=(close>cxh+m5*.10)and(cu)and(co>=m5*.40);brV=(close<cxl-m5*.10)and(cd)and(co>=m5*.40)
+-- TESTE V4 / AJUSTE 3B: H nao arma Ranger sozinho
+-- Ranger continua protegendo caixa por sua propria leitura territorial
+armC=(cxz and rtouch and(not brC));armV=(cxz and btouch and(not brV))
+
+local rzC=make_series();local rnC=make_series();local rzV=make_series();local rnV=make_series()
+rzC:set(nz(rzC[1],0));rnC:set(nz(rnC[1],cxh));rzV:set(nz(rzV[1],0));rnV:set(nz(rnV[1],cxl))
+rC0=nz(rzC[1],0);rN0=nz(rnC[1],cxh);rV0=nz(rzV[1],0);rM0=nz(rnV[1],cxl)
+rBreakC=(rC0==1)and(close>rN0+m5*.15)and(cu)and(co>=m5*.45)
+rBreakV=(rV0==1)and(close<rM0-m5*.15)and(cd)and(co>=m5*.45)
+rAwayC=(rC0==1)and(close<rN0-m5*2.20)and(cd)and(co>=m5*.35)
+rAwayV=(rV0==1)and(close>rM0+m5*2.20)and(cu)and(co>=m5*.35)
+rCa=rC0;rCn=rN0;rVa=rV0;rVn=rM0
+if rBreakC or rAwayC then rCa=0;rzC:set(0) elseif armC and(rC0==0)then rCa=1;rCn=max(cxh,high);rzC:set(1);rnC:set(rCn)end
+if rBreakV or rAwayV then rVa=0;rzV:set(0) elseif armV and(rV0==0)then rVa=1;rVn=min(cxl,low);rzV:set(1);rnV:set(rVn)end
+rBC=(armC or(rCa==1 and high>=rCn-m5*.55))and(not rBreakC)
+rBV=(armV or(rVa==1 and low<=rVn+m5*.55))and(not rBreakV)
+
+-- E SELETIVO: um E por exaustao, veto persistente ate nova estrutura real
+ea=((close[1]>close[2])and 1 or 0)+((close[2]>close[3])and 1 or 0)+((close[3]>close[4])and 1 or 0)+((close[4]>close[5])and 1 or 0)+((close[5]>close[6])and 1 or 0)
+eb=((close[1]<close[2])and 1 or 0)+((close[2]<close[3])and 1 or 0)+((close[3]<close[4])and 1 or 0)+((close[4]<close[5])and 1 or 0)+((close[5]<close[6])and 1 or 0)
+
+-- perna precisa estar madura antes de armar exaustao
+epA=(m5>0)and(ea>=3)and((close[1]-close[6])>=m5*2.00)
+epB=(m5>0)and(eb>=3)and((close[6]-close[1])>=m5*2.00)
+
+-- E nasce na PRIMEIRA falha de expansao/interrupcao no extremo
+eT=highest(high[1],10);eF=lowest(low[1],10)
+eNT=(m5>0)and(high>=eT-m5*.35)and(close<=eT+m5*.08)
+eNF=(m5>0)and(low<=eF+m5*.35)and(close>=eF-m5*.08)
+eStopT=cd or((hc<=35)and(psp>=18))
+eStopF=cu or((hc<=35)and(pip>=18))
+eRawT=epA and eNT and eStopT
+eRawF=epB and eNF and eStopF
+
+-- estado do E: plota uma vez, mas o veto continua vivo
+local ez=make_series();local en=make_series()
+ez:set(nz(ez[1],0));en:set(nz(en[1],close[1]))
+e0=nz(ez[1],0);eN0=nz(en[1],close[1])
+
+-- para invalidar E nao basta furar: exige sustentacao em 2 fechamentos
+eSustUp=(e0==1)and(m5>0)and(close>eN0+m5*.35)and(close[1]>eN0+m5*.20)and cu
+eSustDn=(e0==-1)and(m5>0)and(close<eN0-m5*.35)and(close[1]<eN0-m5*.20)and cd
+
+-- se o preco se afasta de verdade para o lado oposto, a velha exaustao terminou
+eAwayDn=(e0==1)and(m5>0)and(close<eN0-m5*1.20)and(close[1]<eN0-m5*.80)
+eAwayUp=(e0==-1)and(m5>0)and(close>eN0+m5*1.20)and(close[1]>eN0+m5*.80)
+
+eTop=eRawT and(e0==0)
+eBot=eRawF and(e0==0)
+edir=e0
+
+if eTop then
+edir=1;ez:set(1);en:set(max(high,eT))
+elseif eBot then
+edir=-1;ez:set(-1);en:set(min(low,eF))
+elseif eSustUp or eSustDn or eAwayDn or eAwayUp then
+edir=0;ez:set(0);en:set(close)
+end
+
+-- autoridade preservada: E de topo veta Compra; E de fundo veta Venda
+eBC=edir==1
+eBV=edir==-1
+
+-- VETOS ANTES E DEPOIS DA DECISAO DA VELA
+-- DIRECAO 2.0 pode liberar CONTINUACAO limpa apesar do H.
+-- Nao passa por E nem Ranger.
+sC=sC and((not hBC)or d2hPassC)and(not eBC)and(not rBC)
+sV=sV and((not hBV)or d2hPassV)and(not eBV)and(not rBV)
+
+-- FS M1 02: inversao resolvida pela DIRECAO 2.0 + falha da perna + memoria intrabar.
+-- Mantemos aliases apenas para leitura/debug do motor.
+ctxUp=d2dir==1;ctxDn=d2dir==-1
+flipC=d2breakC;flipV=d2breakV
+
+-- TESTE V4 / AJUSTE 4: SD REVERSIVEL
+-- nao cria atraso fixo: forca pode entrar cedo
+-- decisao fraca que perdeu a condicao pode ser cancelada e rearmar para o lado certo
+ot=get_value(open_time,0)
+if sb~=ot then sb=ot;sd=0;sdlock=0 end
+if sdlock==nil then sdlock=0 end
+
+-- se a primeira ideia morreu antes de ganhar autoridade, libera a vela
+if(sd==1)and(not sC)and(sdlock==0)then sd=0 end
+if(sd==-1)and(not sV)and(sdlock==0)then sd=0 end
+
+-- escolhe somente uma direcao por vez
+if sd==0 then
+if sC and(not sV)then sd=1
+elseif sV and(not sC)then sd=-1
+end
+end
+
+-- forca verdadeira trava a direcao para evitar Compra/Venda na mesma vela
+if(sd==1)and sC and cu and(m5>0)and(co>=m5*.55)and(hc>=58)and(psp<35)then sdlock=1 end
+if(sd==-1)and sV and cd and(m5>0)and(co>=m5*.55)and(hc>=58)and(pip<35)then sdlock=1 end
+
+-- sinal so permanece enquanto a condicao atual daquela direcao continua viva
+if sd==1 then
+sV=false
+elseif sd==-1 then
+sC=false
+else
+sC=false;sV=false
+end
+
+if(hBC and(not d2hPassC))or eBC or rBC then sC=false end
+if(hBV and(not d2hPassV))or eBV or rBV then sV=false end
+
+-- LAT4 / FALHA DE ATAQUE NA MESMA PAREDE
+-- Diferente da LAT3: nao depende de classificar previamente "lateral".
+-- A PRIMEIRA tentativa passa. Se ela nao for aceita alem do extremo local,
+-- novas tentativas na MESMA direcao ficam bloqueadas ate:
+-- 1) rompimento real do nivel, ou
+-- 2) afastamento suficiente para nascer um novo episodio.
+-- Em tendencia limpa, novos extremos liberam naturalmente.
+
+aTop=highest(high[1],8);aBot=lowest(low[1],8)
+
+local acs=make_series();local acl=make_series();local acp=make_series()
+local avs=make_series();local avl=make_series();local avp=make_series()
+acs:set(nz(acs[1],0));acl:set(nz(acl[1],aTop));acp:set(nz(acp[1],0))
+avs:set(nz(avs[1],0));avl:set(nz(avl[1],aBot));avp:set(nz(avp[1],0))
+
+ac0=nz(acs[1],0);acL=nz(acl[1],aTop);acP=nz(acp[1],0)
+av0=nz(avs[1],0);avL=nz(avl[1],aBot);avP=nz(avp[1],0)
+
+-- primeira tentativa contra extremo local: passa, mas fica em observacao
+nearAtkC=sC and(m5>0)and(high>=aTop-m5*.30)and(close<=aTop+m5*.22)
+nearAtkV=sV and(m5>0)and(low<=aBot+m5*.30)and(close>=aBot-m5*.22)
+
+-- aceitacao verdadeira: saiu do nivel com corpo e fluxo
+accC=(m5>0)and(close>acL+m5*.12)and cu and(co>=m5*.35)and(hc>=50)and(psp<42)
+accV=(m5>0)and(close<avL-m5*.12)and cd and(co>=m5*.35)and(hc>=50)and(pip<42)
+
+-- afastamento: a velha tentativa deixou de ser o episodio atual
+awayC=(m5>0)and(close<acL-m5*1.80)
+awayV=(m5>0)and(close>avL+m5*1.80)
+
+-- Se uma tentativa ficou pendente e a vela seguinte nao aceitou o nivel,
+-- transforma a observacao em bloqueio de repeticao.
+if acP==1 then
+if close[1]>acL+m5*.08 then
+acs:set(0);acp:set(0);ac0=0;acP=0
+else
+acs:set(1);acp:set(0);ac0=1;acP=0
+end
+end
+if avP==1 then
+if close[1]<avL-m5*.08 then
+avs:set(0);avp:set(0);av0=0;avP=0
+else
+avs:set(1);avp:set(0);av0=1;avP=0
+end
+end
+
+-- rompeu de verdade ou afastou: rearma
+if ac0==1 and(accC or awayC)then acs:set(0);ac0=0 end
+if av0==1 and(accV or awayV)then avs:set(0);av0=0 end
+
+-- bloqueia somente NOVA tentativa contra a mesma parede
+blkAtkC=(ac0==1)and(m5>0)and(close>=acL-m5*.65)and(not accC)
+blkAtkV=(av0==1)and(m5>0)and(close<=avL+m5*.65)and(not accV)
+if blkAtkC then sC=false end
+if blkAtkV then sV=false end
+
+-- arma observacao SOMENTE depois de uma entrada que realmente ficou no grafico
+-- e somente se ainda nao existe bloqueio ativo.
+if nearAtkC and(ac0==0)and(acP==0)then
+acl:set(aTop);acp:set(1)
+end
+if nearAtkV and(av0==0)and(avP==0)then
+avl:set(aBot);avp:set(1)
+end
+
+-- FS M1 02 / UMA VELA, UM LADO VISUAL
+-- So trava depois que um sinal realmente sobreviveu a todos os vetos e ao LAT4.
+-- O motor pode mudar de opiniao internamente, mas a direcao oposta so pode aparecer na proxima vela.
+svot=get_value(open_time,0)
+if svbar~=svot then svbar=svot;svside=0 end
+if svside==nil then svside=0 end
+if svside==0 then
+if sC then svside=1
+elseif sV then svside=-1
+end
+end
+if svside==1 then sV=false end
+if svside==-1 then sC=false end
+
+-- VISUAL: somente candles, Compra/Venda, H e E
+bar="#0bd104";if cd then bar="#f70202"end;plot_candle(open,high,low,close,"FS",bar)
+hVT=(hvmark==1)and(not eTop);hVB=(hvmark==-1)and(not eBot)
+plot_shape(hVT,"H_TOP",shape_style.diamond,shape_size.large,"#FFFFFF",shape_location.abovebar,0,"H","#FFFFFF")
+plot_shape(hVB,"H_BOT",shape_style.diamond,shape_size.large,"#FFFFFF",shape_location.belowbar,0,"H","#FFFFFF")
+plot_shape(eTop,"E_TOP",shape_style.diamond,shape_size.large,"#FFFFFF",shape_location.abovebar,0,"E","#FFFFFF")
+plot_shape(eBot,"E_BOT",shape_style.diamond,shape_size.large,"#FFFFFF",shape_location.belowbar,0,"E","#FFFFFF")
+if sC then plot_shape(1,"BUY",shape_style.arrowup,shape_size.large,"#0bd104",shape_location.belowbar,0,"Compra","#fcfc04")
+elseif sV then plot_shape(1,"SELL",shape_style.arrowdown,shape_size.large,"#f70202",shape_location.abovebar,0,"Venda","#fcfc01")end
+
+-- BARRAS VISUAIS M30: brancas, sem interferir na logica
+local function fs_m15(candle)
+    fs_barra_max = candle.high
+    fs_barra_min = candle.low
+end
+fs_sec15 = security(current_ticker_id,"30m")
+if fs_sec15 then
+    fs_m15(fs_sec15)
+    plot(fs_barra_max,"Barra Superior","#FFFFFF",2,0,style.levels,na_mode.continue)
+    plot(fs_barra_min,"Barra Inferior","#FFFFFF",2,0,style.levels,na_mode.continue)
+end
+
