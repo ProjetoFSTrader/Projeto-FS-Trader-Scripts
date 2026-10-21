@@ -1,0 +1,155 @@
+-- H F10 | H seletivo + memoria estrutural + barras M15 | DEMO
+instrument{name="HS10",icon="jpg",overlay=true}input_group{"Compra",comprar_color=input{default="green",type=input.color}}input_group{
+"Periodo Max/Min",doch_time=input{default="10",type=input.string}}input_group{"Periodo da Micro Tendencia",emaa_per=input{default="10",type=input.string}}
+input_group{"Periodo da  Macro Tendencia",emab_per=input{default="100",type=input.string}}input_group{"Media Rapida",emac_per=input{default="3",type=input.string}}
+input_group{"Media Lenta",emad_per=input{default="13",type=input.string}}input_group{"Venda",vender_color=input{default="#fcf805",type=input.color}}input_group{
+"Candles",positivo=input{default="#0bd104",type=input.color},negativo=input{default="#f70202",type=input.color},neutro=input{default="#787b86",type=input.color},}
+input_group{"Canal (Resistencia/Suporte)",upline_color=input{default="#00E5FF",type=input.color},lowline_color=input{default="#00B86B",type=input.color}}EMAA=ema(
+close,emaa_per)EMAB=ema(close,emab_per)EMAC=ema(hlc3,emac_per)EMAD=ema(hlc3,emad_per)upper=highest(high,doch_time)lower=lowest(low,doch_time)TA=((close>close[1])and
+(close>EMAA)and(EMAA>EMAA[1]))TB=((close<close[1])and(close<EMAA)and(EMAA<EMAA[1]))ENC=((EMAC[1]<EMAD[1])and(EMAC>EMAD))ENV=((EMAC[1]>EMAD[1])and(EMAC<EMAD))
+input_group{"Qualidade Fixa do Sinal",micro_eficiencia_txt=input{default="35",type=input.string},micro_corpo_pct_txt=input{default="45",type=input.string},
+micro_tamanho_pct_txt=input{default="60",type=input.string},sinal_fraco_color=input{default="#D500F9",type=input.color}}zE=abs(close-open)zF=high-
+low micro_range_1f=high[1]-low[1]micro_range_2f=high[2]-low[2]micro_range_3f=high[3]-low[3]micro_range_4f=high[4]-low[4]micro_range_5f=high[5]-low[5]
+zM=micro_range_1f+micro_range_2f+micro_range_3f+micro_range_4f+micro_range_5f zN=zM/5
+progresso_micro_fechado=abs(close[1]-close[5])eficiencia_micro_fechada=(zM>0)and(progresso_micro_fechado/zM*100)or 100
+micro_lateralizado_fixo=eficiencia_micro_fechada<tonumber(micro_eficiencia_txt)micro_corpo_atual_pct=(zF>0)and(zE/zF*100)or 100
+zQ=(micro_corpo_atual_pct<tonumber(micro_corpo_pct_txt))and(zN>0)and(zE<zN*tonumber(
+micro_tamanho_pct_txt)/100)micro_contexto_fraco_fixo=micro_lateralizado_fixo and zQ sec=security(current_ticker_id,"1m")if sec then local
+bar_color if close>open then bar_color=positivo elseif close<open then bar_color=negativo else bar_color=neutro end plot_candle(open,high,low,close,"ES",bar_color)
+plot(upper,"SMC Superior",upline_color)plot(lower,"SMC Inferior",lowline_color)end input_group{"CALL - UP COLOR",call_color=input{default="#fcfc04",type=input.color
+}}input_group{"PUT - DOWN COLOR",put_color=input{default="#fcfc01",type=input.color}}range_1=high[1]-low[1]range_2=high[2]-low[2]range_3=high[3]-low[3]range_4=high[
+4]-low[4]range_5=high[5]-low[5]range_6=high[6]-low[6]range_7=high[7]-low[7]media_range=(zF+range_1+range_2+range_3)/4 range_8=high[8]-low[8]range_9=high[9]
+-low[9]range_10=high[10]-low[10]range_11=high[11]-low[11]range_12=high[12]-low[12]range_13=high[13]-low[13]range_14=high[14]-low[14]media_range_15=(zF+
+range_1+range_2+range_3+range_4+range_5+range_6+range_7+range_8+range_9+range_10+range_11+range_12+range_13+range_14)/15 input_group{"Lateralizacao e Forca Minima",
+eficiencia_min_txt=input{default="12",type=input.string},forca_min_txt=input{default="20",type=input.string}}progresso_liquido=abs(close-close[7])movimento_total=
+zF+range_1+range_2+range_3+range_4+range_5+range_6+range_7 eficiencia=(movimento_total>0)and(progresso_liquido/movimento_total*100)or 100 lateralizado=
+eficiencia<tonumber(eficiencia_min_txt)lateralizado_pre=eficiencia<6 forca_min=tonumber(forca_min_txt)/100 input_group{
+"Lateralizacao rapida (janela curta, pega caixotinho cedo)",eficiencia_curta_min_txt=input{default="8",type=input.string}}progresso_liquido_curto=abs(close-close[3]
+)movimento_total_curto=zF+range_1+range_2+range_3 eficiencia_curta=(movimento_total_curto>0)and(progresso_liquido_curto/movimento_total_curto*100)or 100
+zT=eficiencia_curta<tonumber(eficiencia_curta_min_txt)zO=zQ input_group{
+"Exaustao de perna (limiar em multiplos do range medio)",exaustao_limiar_txt=input{default="25",type=input.string}}distancia_perna=abs(close-close[15])
+zAB=(media_range>0)and(distancia_perna>media_range*tonumber(exaustao_limiar_txt))or false input_group{"Freio pos-impulso S6 (apenas 1 vela)",
+pos_impulso_range_pct_txt=input{default="120",type=input.string},zY=input{default="55",type=input.string},pos_impulso_proximidade_txt=input{
+default="25",type=input.string},pos_impulso_break_corpo_txt=input{default="20",type=input.string},pos_impulso_break_margem_txt=input{default="0",type=input.string}}
+zB=(range_2+range_3+range_4+range_5+range_6+range_7+range_8+range_9)/8 corpo_1_fechado=abs(close[1]-open[1])corpo_1_pct=(range_1>0)and(
+corpo_1_fechado/range_1*100)or 0 zS=zB*tonumber(pos_impulso_range_pct_txt)/100 impulso_alta_fechado=(zB>0)
+and(close[1]>open[1])and(range_1>=zS)and(corpo_1_pct>=tonumber(zY))impulso_baixa_fechado=(zB>0)and(close
+[1]<open[1])and(range_1>=zS)and(corpo_1_pct>=tonumber(zY))topo_fechado_pos=highest(high[1],doch_time)fundo_fechado_pos=
+lowest(low[1],doch_time)zU=zB*tonumber(pos_impulso_proximidade_txt)/100 chegou_topo_pos=(topo_fechado_pos-high[1])<=
+zU chegou_fundo_pos=(low[1]-fundo_fechado_pos)<=zU margem_break_pos=zB*tonumber(pos_impulso_break_margem_txt)/100
+corpo_break_pos=zB*tonumber(pos_impulso_break_corpo_txt)/100 rompimento_compra_pos=(close>topo_fechado_pos+margem_break_pos)and(close>open)and(
+zE>=corpo_break_pos)rompimento_venda_pos=(close<fundo_fechado_pos-margem_break_pos)and(close<open)and(zE>=corpo_break_pos)freio_pos_compra=
+impulso_alta_fechado and chegou_topo_pos and(not rompimento_compra_pos)freio_pos_venda=impulso_baixa_fechado and chegou_fundo_pos and(not rompimento_venda_pos)
+input_group{"Aviso de Extremo (somente recolore para lilas)",zV=input{default="35",type=input.string},extremo_proximidade_txt=input{default="30",
+type=input.string},extremo_corpo_media_txt=input{default="85",type=input.string}}pavio_superior_atual=high-max(open,close)pavio_inferior_atual=min(open,close)-low
+zC=(zF>0)and(pavio_superior_atual/zF*100)or 0 zD=(zF>0)and(pavio_inferior_atual/zF*100)or 0
+margem_extremo=media_range*tonumber(extremo_proximidade_txt)/100 zG=(upper-high)<=margem_extremo zH=(low-lower)<=margem_extremo
+corpo_curto_extremo=(zN>0)and(zE<=zN*tonumber(extremo_corpo_media_txt)/100)aviso_extremo_compra=zG and
+corpo_curto_extremo and(zC>=tonumber(zV))aviso_extremo_venda=zH and corpo_curto_extremo and(zD>=
+tonumber(zV))input_group{"S6 - Transicao de Regime",zW=input{default="30",type=input.string},transicao_buffer_pct_txt=input{
+default="4",type=input.string}}zL=(close[1]>EMAA[1])and(EMAA[1]>=EMAA[2])zK=(close[1]<EMAA[1])and(EMAA[1]<=EMAA[2])trans_body_1=
+abs(close[1]-open[1])zZ=high[1]-low[1]trans_pavio_sup_1=high[1]-max(open[1],close[1])trans_pavio_inf_1=min(open[1],close[1])-low[1]trans_pavio_sup_pct_1=
+(zZ>0)and(trans_pavio_sup_1/zZ*100)or 0 trans_pavio_inf_pct_1=(zZ>0)and(trans_pavio_inf_1/zZ*100)or 0
+trans_reacao_alta_1=((close[1]>open[1])or(trans_pavio_inf_pct_1>=tonumber(zW)))and((low[1]>=low[2])or(close[1]>close[2]))trans_reacao_baixa_1=(
+(close[1]<open[1])or(trans_pavio_sup_pct_1>=tonumber(zW)))and((high[1]<=high[2])or(close[1]<close[2]))trans_base=(range_1+range_2+range_3+
+range_4+range_5)/5 trans_buffer=trans_base*tonumber(transicao_buffer_pct_txt)/100 trans_topo_2=max(high[1],high[2])trans_fundo_2=min(low[1],low[2])
+transicao_baixa_para_alta=zK and trans_reacao_alta_1 and(close>=trans_fundo_2-trans_buffer)transicao_alta_para_baixa=zL and
+trans_reacao_baixa_1 and(close<=trans_topo_2+trans_buffer)transicao_freia_venda=transicao_baixa_para_alta transicao_freia_compra=transicao_alta_para_baixa
+input_group{"S8 - Ajuste fino de fluxo",s8_fluxo_eficiencia_txt=input{default="18",type=input.string},s8_ponta_mult_txt=input{default="4.5",type=input.string},
+s8_ponta_corpo_txt=input{default="70",type=input.string},zX=input{default="30",type=input.string}}dir_1=(close[1]>open[1])and 1 or((close[1]<open[1]
+)and-1 or 0)dir_2=(close[2]>open[2])and 1 or((close[2]<open[2])and-1 or 0)dir_3=(close[3]>open[3])and 1 or((close[3]<open[3])and-1 or 0)dir_4=(close[4]>open[4])and
+1 or((close[4]<open[4])and-1 or 0)dir_5=(close[5]>open[5])and 1 or((close[5]<open[5])and-1 or 0)troca_12=(dir_1~=0)and(dir_2~=0)and(dir_1~=dir_2)and 1 or 0 troca_23
+=(dir_2~=0)and(dir_3~=0)and(dir_2~=dir_3)and 1 or 0 troca_34=(dir_3~=0)and(dir_4~=0)and(dir_3~=dir_4)and 1 or 0 troca_45=(dir_4~=0)and(dir_5~=0)and(dir_4~=dir_5)and
+1 or 0 zAC=troca_12+troca_23+troca_34+troca_45 movimento_fluxo_6=zF+range_1+range_2+range_3+range_4+range_5 progresso_fluxo_6=abs(close-close[5]
+)eficiencia_fluxo_6=(movimento_fluxo_6>0)and(progresso_fluxo_6/movimento_fluxo_6*100)or 100 zAA=(zAC>=3)and(eficiencia_fluxo_6<tonumber(
+s8_fluxo_eficiencia_txt))zA=(range_1+range_2+range_3+range_4+range_5)/5 distancia_s8=abs(close-close[5])zR=(zA>0)and(
+distancia_s8>=zA*tonumber(s8_ponta_mult_txt))corpo_rel_s8=(zA>0)and(zE/zA*100)or 100 perdeu_corpo_s8=corpo_rel_s8<
+tonumber(s8_ponta_corpo_txt)rejeita_compra_s8=zC>=tonumber(zX)rejeita_venda_s8=zD>=tonumber(zX)
+ponta_compra_s8=zR and zG and(perdeu_corpo_s8 or rejeita_compra_s8)ponta_venda_s8=zR and zH and(perdeu_corpo_s8 or
+rejeita_venda_s8)s9lite_alta_madura=zL and zR and zG s9lite_baixa_madura=zK and zR and
+zH s9lite_pausa_alta=(close[1]<=close[2]+zA*0.18)or rejeita_compra_s8 s9lite_pausa_baixa=(close[1]>=close[2]-zA*0.18)or
+rejeita_venda_s8 s9lite_retomou_alta=close>high[1]and close>open and zE>zA*0.40 s9lite_retomou_baixa=close<low[1]and close<open and zE
+>zA*0.40 zAD=s9lite_alta_madura and s9lite_pausa_alta and(not s9lite_retomou_alta)zAE=s9lite_baixa_madura and
+s9lite_pausa_baixa and(not s9lite_retomou_baixa)zP=zA*0.30 f9_topo_fechado=highest(high[1],doch_time)f9_fundo_fechado=lowest(low[1],
+doch_time)f9_topo_repetido=((f9_topo_fechado-high[1])<=zP)and((f9_topo_fechado-high[2])<=zP)f9_fundo_repetido=((low[1]-
+f9_fundo_fechado)<=zP)and((low[2]-f9_fundo_fechado)<=zP)f9_sem_avanco_alta=close[1]<=close[2]+zA*0.18 f9_sem_avanco_baixa=
+close[1]>=close[2]-zA*0.18 f9_rompeu_topo=close>high[1]and close>open and zE>zA*0.40 f9_rompeu_fundo=close<low[1]and close<open and
+zE>zA*0.40 zAF=zL and zG and f9_topo_repetido and f9_sem_avanco_alta and(not f9_rompeu_topo)
+zAG=zK and zH and f9_fundo_repetido and f9_sem_avanco_baixa and(not f9_rompeu_fundo)zI=TA and(not lateralizado)
+and(not zT)and(zE>media_range_15*forca_min)and(not zAB)and(not freio_pos_compra)and(not zAA)and(not ponta_compra_s8)
+and(not zAD)and(not zAF)zJ=TB and(not lateralizado)and(not zT)and(zE>media_range_15*forca_min)
+and(not zAB)and(not freio_pos_venda)and(not zAA)and(not ponta_venda_s8)and(not zAE)and(not zAG)input_group{
+"S9 - Alerta de topo/fundo repetido",s9_extremo_pct_txt=input{default="30",type=input.string},s9_progresso_pct_txt=input{default="18",type=input.string}}s9_base=(
+range_1+range_2+range_3+range_4+range_5)/5 s9_margem=s9_base*tonumber(s9_extremo_pct_txt)/100 s9_progresso=s9_base*tonumber(s9_progresso_pct_txt)/100
+s9_topo_fechado=highest(high[1],doch_time)s9_fundo_fechado=lowest(low[1],doch_time)s9_2_topo=((s9_topo_fechado-high[1])<=s9_margem)and((s9_topo_fechado-high[2])<=
+s9_margem)s9_2_fundo=((low[1]-s9_fundo_fechado)<=s9_margem)and((low[2]-s9_fundo_fechado)<=s9_margem)s9_sem_avanco_alta=close[1]<=close[2]+s9_progresso
+s9_sem_avanco_baixa=close[1]>=close[2]-s9_progresso s9_alerta_topo_compra=zL and s9_2_topo and s9_sem_avanco_alta and zG
+s9_alerta_fundo_venda=zK and s9_2_fundo and s9_sem_avanco_baixa and zH input_group{"MEMORIA F9 - TESTE DEMO",q89=input{default="2",type
+=input.string},q51=input{default="40",type=input.string},q124=input{default="18",type=input.string},q96=input{default="#AA66FF",type=input.color}}q88=tonumber(q89)
+or 2 q50=(tonumber(q51)or 55)/100 q123=(tonumber(q124)or 28)/100 q87=get_value(zA,0)q87=max(q87,0.00000001)q94=get_value(open,0)q52=get_value(close,0)
+q72=get_value(high,0)q74=get_value(low,0)q53=get_value(close[1],0)q54=get_value(close[2],0)q55=get_value(close[3],0)q95=get_value(open[1],0)q73=get_value(high[1],0)
+q75=get_value(low[1],0)q49=abs(q52-q94)input_group{"Barras M15 fechadas",q61=input{default="#FFFFFF",type=input.color},q76=input{default=2,type=input.line_width}}
+q127=security(current_ticker_id,"15m")q139=0 q69=0 q86=false if q127 then q139=get_value(q127.high[1],0)q69=get_value(q127.low[1],0)q86=(q139>q69)and(q69>0)plot(
+q127.high[1],"Barra M15 Superior",q61,q76,0,style.levels,na_mode.continue)plot(q127.low[1],"Barra M15 Inferior",q61,q76,0,style.levels,na_mode.continue)end q11=(
+range_1+range_2+range_3+range_4+range_5)/5 q12=(zF>0)and(zE/zF*100)or 0 q24=max(high[1],max(high[2],high[3]))q15=min(low[1],min(low[2],
+low[3]))q18=(q11>0)and((close[1]-close[6])>=q11*1.50)and(close[1]>close[3])q19=(q11>0)and((close[6]-close[1])>=q11*1.50)and(close[1]<close[3])q14=(high>=q24)and((
+high-q24)<=q11*0.20)q13=(low<=q15)and((q15-low)<=q11*0.20)q17=(high[1]>=max(high[2],high[3]))and(high<=high[1]+q11*0.05)q16=(low[1]<=min(low[2],low[3]))and(low>=low
+[1]-q11*0.05)q23=(close>q24+q11*0.05)and(close>open)and(q12>=55)and(zC<=30)q22=(close<q15-q11*0.05)and(close<open)and(q12>=55)and(zD
+<=30)q21=(close<=close[1]+q11*0.08)or(zC>=30)or(q12<45)q20=(close>=close[1]-q11*0.08)or(zD>=30)or(q12<45)q38=q18 and zG and(q14 or q17)and q21 and(not q23)and(zC>=20 or close<open or(q12<30 and close<=close[1]+q11*.08))
+q37=q19 and zH and(q13 or q16)and q20 and(not q22)and(zD>=20 or close>open or(q12<30 and close>=close[1]-q11*.08))local q6=make_series()local q46=make_series()local
+q10=make_series()local q3=make_series()local q28=make_series()local q27=make_series()q5=nz(q6[1],0)q44=nz(q46[1],q73)q8=nz(q10[1],q75)q2=nz(q3[1],0)q30=nz(q28[1],0)
+q29=nz(q27[1],0)q4=q5 q43=q44 q7=q8 q1=q2 if q5==1 and q53<q44-q87*1.60 and q53<q54 and q54<q55 and q53<get_value(EMAA[1],q53)then q1=1 end if q5==-1 and q53>q8+q87
+*1.60 and q53>q54 and q54>q55 and q53>get_value(EMAA[1],q53)then q1=1 end q36=q72>q44+q87*2.60 q35=q74<q8-q87*2.60 q40=(q52<q94)or(zC>=28)q39=(q52>
+q94)or(zD>=28)q34=(q5~=1)or(q1==1 and q72>q44+q87*.95 and q53>q54)q33=(q5~=-1)or(q1==1 and q74<q8-q87*.95 and q53<q54)q32=q38 and q34 q31=q37 and q33 and(not q32)if q32
+then q4=1;q43=max(q72,q73);q1=0 elseif q31 then q4=-1;q7=min(q74,q75);q1=0 end q6:set(q4)q46:set(q43)q10:set(q7)q3:set(q1)q41=get_value(open_time,0)if q42~=q41 then
+q42=q41 q26=false q25=false q77=0 end if q32 and not q25 then q26=true end if q31 and not q26 then q25=true end q45=(q26==true)q9=(q25==true)q47=q45 or q9 q28:set(
+q45 and 1 or 0)q27:set(q9 and 1 or 0)local q122=make_series()local q134=make_series()local q121=make_series()local q133=make_series()local q145=make_series()local
+q148=make_series()local q91=make_series()local q93=make_series()local q110=make_series()local q102=make_series()local q101=make_series()q137=get_value(highest(high[
+2],8),q73)q111=get_value(lowest(low[2],8),q75)q138=get_value(highest(high[1],8),q73)q112=get_value(lowest(low[1],8),q75)q97=q138-q112 q63=abs(q53-get_value(close[8]
+,q53))q48=get_value(zAC,0)q65=(q97<=q87*3.25)q66=(q97<=q87*6.0)q64=(q63>q87*2.2)and(q48<=1)q58=q65 and(q48>=2 or q63<q87*1.25)and(not q64)q57=q66 and(q48
+>=2)and(q63<=q87*2.50)and(not q64)q56=q58 or q57 q118=nz(q122[1],0)q130=nz(q134[1],0)q120=nz(q121[1],0)q132=nz(q133[1],0)q144=nz(q145[1],0)q147=nz(q148[1],0)q90=nz(
+q91[1],0)q92=nz(q93[1],0)q117=q118 q129=q130 q119=q120 q131=q132 q143=q144 q146=q147 q140=q87*.45 q99=q73-max(q95,q53)q98=min(q95,q53)-q75 q114=max(q73-q75,
+0.00000001)q115=abs(q73-q137)<=q140 and q53<q137-q87*.08 and(q99>=q114*.22 or q53<q95 or q53<q54)q116=abs(q75-q111)<=q140 and q53>q111+q87*.08 and(q98>=q114*.22 or
+q53>q95 or q53>q54)q67=q73>q137+q87*.07 and q53<q137 and q53<q95 q68=q75<q111-q87*.07 and q53>q111 and q53>q95 if(q115 or q67)then if q120==0 or abs(q118-q137)>q140
+then q143=1 elseif q90==0 then q143=q144+1 end q117=q137;q119=1 end if(q116 or q68)then if q132==0 or abs(q130-q111)>q140 then q146=1 elseif q92==0 then q146=q147+1
+end q129=q111;q131=1 end if q119==1 and q53>q117+q87*.32 and q54>q117+q87*.18 then q119=0;q143=0 end if q131==1 and q53<q129-q87*.32 and q54<q129-q87*.18 then q131=
+0;q146=0 end q122:set(q117)q134:set(q129)q121:set(q119)q133:set(q131)q145:set(q143)q148:set(q146)q91:set(abs(q73-q137)<=q140 and 1 or 0)q93:set(abs(q75-q111)<=q140
+and 1 or 0)local q84=make_series()local q78=make_series()local q85=make_series()local q79=make_series()q141=nz(q84[1],0)q70=nz(q78[1],0)q142=nz(q85[1],0)q71=nz(q79[
+1],0)q81=q73-max(q95,q53)q80=min(q95,q53)-q75 if q86 then if abs(q139-q141)>q87*.45 then q142=0 end if abs(q69-q70)>q87*.45 then q71=0 end q83=q73>=q139-q87*.38 and
+q53<q139-q87*.10 and(q81>q87*.16 or q53<q95)q82=q75<=q69+q87*.38 and q53>q69+q87*.10 and(q80>q87*.16 or q53>q95)if q83 then q142=1 end if q82 then q71=1 end if q53>
+q139+q87*.32 and q54>q139+q87*.18 then q142=0 end if q53<q69-q87*.32 and q54<q69-q87*.18 then q71=0 end q84:set(q139)q78:set(q69)else q142=0 q71=0 end q85:set(q142)
+q79:set(q71)q109=nz(q110[1],0)q100=nz(q102[1],0)q113=nz(q101[1],0)if q29==1 then q100=1;q113=q75 elseif q30==1 then q100=-1;q113=q73 end if q116 and q53>q54+q87*.25
+then q100=1;q113=q75 elseif q115 and q53<q54-q87*.25 then q100=-1;q113=q73 end q128=q53>q54 and(q54>q55 or q53>get_value(high[2],q54))and q53>q113+q87*.45 q62=q53<
+q54 and(q54<q55 or q53<get_value(low[2],q54))and q53<q113-q87*.45 if q100==1 and q128 then q109=2 end if q100==-1 and q62 then q109=-2 end if q100==1 and q53<q113-
+q87*.24 then q100=0 if q109==2 then q109=0 end end if q100==-1 and q53>q113+q87*.24 then q100=0 if q109==-2 then q109=0 end end if q109==2 and q53<q111-q87*.24 then
+q109=0 end if q109==-2 and q53>q137+q87*.24 then q109=0 end q110:set(q109)q102:set(q100)q101:set(q113)q125=(q52>q138+q87*q123)and(q52>q94)and(q49>q87*.45)and(
+zC<35)q126=(q52<q112-q87*q123)and(q52<q94)and(q49>q87*.45)and(zD<35)q136=(q73>=q138-q87*.42 or get_value(high[2],0)>=q138-q87*.42)
+and q53<=q138-q87*.05 q135=(q75<=q112+q87*.42 or get_value(low[2],0)<=q112+q87*.42)and q53>=q112+q87*.05 q108=q56 and q136 and q72>=q138-q87*q50 and q52<=q138+q87*
+q123 q103=q56 and q135 and q74<=q112+q87*q50 and q52>=q112-q87*q123 q105=q119==1 and q72>=q117-q87*q50 and q52<=q117+q87*q123 q107=q131==1 and q74<=q129+q87*q50 and
+q52>=q129-q87*q123 q60=q109==2 and not(q52<q113-q87*.25 and q52<q94 and q49>=q87*.45)q59=q109==-2 and not(q52>q113+q87*.25 and q52>q94 and q49>=q87*.45)q104=q86 and
+q142==1 and q72>=q139-q87*q50 and q52<=q139+q87*q123 q106=q86 and q71==1 and q74<=q69+q87*q50 and q52>=q69-q87*q123 -- Afinamento: falso rompimento fechado + recuperacao sem quebra de microestrutura.
+-- H de fundo e repique fraco na baixa NAO autorizam compra so pela cor verde.
+-- H de topo e repique fraco na alta NAO autorizam venda so pela cor vermelha.
+q151=get_value(EMAA[1],q53)<get_value(EMAA[4],q53)-q87*.16 and q53<get_value(close[4],q53)-q87*.75
+q152=get_value(EMAA[1],q53)>get_value(EMAA[4],q53)+q87*.16 and q53>get_value(close[4],q53)+q87*.75
+q153=(q100==1 or q29==1)and q151 and(not q125)and q52<=get_value(highest(high[1],3),q73)+q87*.08
+q154=(q100==-1 or q30==1)and q152 and(not q126)and q52>=get_value(lowest(low[1],3),q75)-q87*.08
+-- Ultimo toque/frustracao: barreira nao depende de a caixa ja estar classificada.
+q155=q73>=q137-q87*.40 and q53<q137-q87*.08 and(q99>=q87*.16 or q53<q95)
+q156=q75<=q111+q87*.40 and q53>q111+q87*.08 and(q98>=q87*.16 or q53>q95)
+q157=q155 and q72>=q138-q87*q50 and q52<=q138+q87*q123
+q158=q156 and q74<=q112+q87*q50 and q52>=q112-q87*q123
+q149=zI and(not q125)and(q108 or q105 or q104 or q59 or q153 or q157)
+q150=zJ and(not q126)and(q103 or q107 or q106 or q60 or q154 or q158)plot_shape(q88==1 and q149,'F9_MEM_VETO_COMPRA',shape_style.diamond,shape_size.tiny,q96
+,shape_location.belowbar,0,'M',q96)plot_shape(q88==1 and q150,'F9_MEM_VETO_VENDA',shape_style.diamond,shape_size.tiny,q96,shape_location.abovebar,0,'M',q96)if q88>=
+2 then if q149 then zI=false end if q150 then zJ=false end end if q47 then q77=9 zI=false zJ=false elseif q77==9 then
+zI=false zJ=false elseif q77==1 then zJ=false elseif q77==-1 then zI=false else if zI and not zJ then q77=1
+end if zJ and not zI then q77=-1 end if zI and zJ then zI=false;zJ=false end end plot_shape(q45,'F9_H_TOPO'
+,shape_style.arrowdown,shape_size.large,'#FF9800',shape_location.abovebar,0,'H','#FFFFFF')plot_shape(q9,'F9_H_FUNDO',shape_style.arrowup,shape_size.large,'#00E5FF',
+shape_location.belowbar,0,'H','#FFFFFF')input_group{"UP - UP COLOR",call_color=input{default="#0bd104",type=input.color}}input_group{"DOWN - DOWN COLOR",put_color=
+input{default="#f70202",type=input.color}}if zI then if zO or aviso_extremo_compra or transicao_freia_compra or
+s9_alerta_topo_compra then plot_shape(1,'Bull_UP_FRACO',shape_style.arrowup,shape_size.large,call_color,shape_location.belowbar,0,"Compra","#fcfc04")else plot_shape
+(1,'Bull_UP',shape_style.arrowup,shape_size.large,call_color,shape_location.belowbar,0,"Compra","#fcfc04")end else if zJ then if zO
+or aviso_extremo_venda or transicao_freia_venda or s9_alerta_fundo_venda then plot_shape(1,'Bear_DOWN_FRACO',shape_style.arrowdown,shape_size.large,put_color,
+shape_location.abovebar,0,"Venda","#fcfc01")else plot_shape(1,'Bear_DOWN',shape_style.arrowdown,shape_size.large,put_color,shape_location.abovebar,0,"Venda",
+"#fcfc01")end end end
