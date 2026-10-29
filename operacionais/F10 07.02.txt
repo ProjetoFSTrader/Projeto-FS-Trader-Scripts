@@ -1,0 +1,638 @@
+-- ============================================================
+-- FS TRADER | DESENVOLVIMENTO: FABIO SANTIAGO (TRADER)
+-- F10 07.02
+-- Quer aprender a usar este script do jeito certo?
+-- Fale direto comigo:
+--   WhatsApp: (99) 99195-0983
+--   Telegram: t.me/Fabiosantiagotrader
+-- Este script e um produto do Projeto FS Trader. Nao revenda.
+-- ============================================================
+instrument{name="F10 07.02 | FS Trader Dev Fabio Santiago | WhatsApp (99) 99195-0983 | t.me/Fabiosantiagotrader",icon="jpg",overlay=true}
+input_group{
+"Candles",
+positivo=input{default="#00FF40",type=input.color},
+negativo=input{default="#FF0000",type=input.color},
+neutro=input{default="#E1EAF4",type=input.color}
+}
+input_group{
+"Visual de candles vivos (1=ligado, 0=nativo)",
+fs01_candles_vivos_txt=input{default="1",type=input.string}
+}
+input_group{
+"Sinais",
+compra=input{default="#00FF40",type=input.color},
+venda=input{default="#FF0000",type=input.color},
+h_cor=input{default="#FFFFFF",type=input.color},
+rev_cor=input{default="#00E5FF",type=input.color}
+}
+input_group{
+"Reversao FS 02",
+rev_corpo_base_pct=input{default="40",type=input.string},
+rev_corpo_vela_pct=input{default="55",type=input.string},
+rev_break_micro_pct=input{default="5",type=input.string},
+rev_pavio_contra_max=input{default="40",type=input.string}
+}
+input_group{
+"M15 e rompimento",
+fs01_m15_pa_on=input{default=true,type=input.boolean},
+fs01_saida_caixa_on=input{default=true,type=input.boolean}
+}
+input_group{
+"Barreira lateral F9 (9 velas)",
+fs02_barreira_f9_on=input{default=true,type=input.boolean}
+}
+input_group{
+"F3 Barras fechadas",
+f3_mostrar_m15=input{default=true,type=input.boolean},
+f3_mostrar_m5=input{default=true,type=input.boolean},
+f3_cor_m15=input{default="#FFFFFF",type=input.color},
+f3_cor_m5=input{default="#00E5FF",type=input.color}
+}
+input_group{
+"F3 Lateral larga",
+f3_lateral_on=input{default=true,type=input.boolean},
+f3_mostrar_detector=input{default=false,type=input.boolean},
+f3_cor_lateral=input{default="#00E5FF",type=input.color},
+f3_lat_ent_txt=input{default="30",type=input.string},
+f3_lat_sai_txt=input{default="40",type=input.string},
+f3_tol_txt=input{default="30",type=input.string}
+}
+input_group{
+"F3.1 Ajustes do motor",
+f3_ema_zm_txt=input{default="6",type=input.string},
+f3_rej_on=input{default=true,type=input.boolean},
+f3_doji_on=input{default=true,type=input.boolean},
+f3_velas_estado=input{default=false,type=input.boolean},
+f3_cor_desc=input{default="#FFB300",type=input.color}
+}
+input_group{
+"F3 Velas proibidas apos o H",
+f3_h_velas_txt=input{default="0",type=input.string}
+}
+
+-- ============================================================
+-- F9 HIBRIDO: somente motor adicional de escadinhas.
+-- AS BARRAS DO F6 NAO SAO TROCADAS PELO DONCHIAN DO F9.
+-- O make_series do detector F3 / H / REV permanece inalterado.
+-- Controles independentes para teste lado a lado no M1.
+-- ============================================================
+input_group{
+"F9 HIBRIDO | ESCADINHAS (TESTE)",
+f9_resgate_escadas_on=input{default=true,type=input.boolean},
+f9_escadas_liberar_caixa8=input{default=false,type=input.boolean},
+f9_escadas_mostrar_r9=input{default=false,type=input.boolean}
+}
+_ek=10
+_o=ema(close,10)
+_ii=highest(high,_ek)
+_ie=lowest(low,_ek)
+_a=abs(close-open)
+_c=high-low
+_ej=high-max(open,close)
+_eh=min(open,close)-low
+_i=_c>0 and _ej/_c*100 or 0
+_h=_c>0 and _eh/_c*100 or 0
+r1=high[1]-low[1]
+r2=high[2]-low[2]
+r3=high[3]-low[3]
+r4=high[4]-low[4]
+r5=high[5]-low[5]
+r6=high[6]-low[6]
+r7=high[7]-low[7]
+r8=high[8]-low[8]
+r9=high[9]-low[9]
+_im=high[10]-low[10]
+_il=high[11]-low[11]
+_ir=high[12]-low[12]
+_iq=high[13]-low[13]
+_ip=high[14]-low[14]
+_ca=(_c+r1+r2+r3)/4
+_ad=(_c+r1+r2+r3+r4+r5+r6+r7+r8+r9+_im+_il+_ir+_iq+_ip)/15
+_ia=_c+r1+r2+r3+r4+r5+r6+r7
+_ig=_ia>0 and abs(close-close[7])/_ia*100 or 100
+_dl=_ig<12
+_hy=_c+r1+r2+r3
+_if=_hy>0 and abs(close-close[3])/_hy*100 or 100
+_au=_if<8
+_ab=_ca>0 and abs(close-close[15])>_ca*50 or false
+_eq=(r2+r3+r4+r5+r6+r7+r8+r9)/8
+_ib=abs(close[1]-open[1])
+_ev=r1>0 and _ib/r1*100 or 0
+_fi=_eq>0 and close[1]>open[1]and r1>=_eq*1.20 and _ev>=55
+_ez=_eq>0 and close[1]<open[1]and r1>=_eq*1.20 and _ev>=55
+_ge=highest(high[1],_ek)
+_es=lowest(low[1],_ek)
+_gg=(_ge-high[1])<=_eq*0.25
+_ga=(low[1]-_es)<=_eq*0.25
+_gf=close>_ge and close>open and _a>=_eq*0.20
+_gj=close<_es and close<open and _a>=_eq*0.20
+_bs=_fi and _gg and not _gf
+_bw=_ez and _ga and not _gj
+_cf=_ca*0.30
+_k=(_ii-high)<=_cf
+_q=(low-_ie)<=_cf
+_bz=close[1]>_o[1]and _o[1]>=_o[2]
+_bl=close[1]<_o[1]and _o[1]<=_o[2]
+local function dir(o,c)
+return c>o and 1 or(c<o and-1 or 0)
+end
+d1=dir(open[1],close[1])
+d2=dir(open[2],close[2])
+d3=dir(open[3],close[3])
+d4=dir(open[4],close[4])
+d5=dir(open[5],close[5])
+_it=d1~=0 and d2~=0 and d1~=d2 and 1 or 0
+_is=d2~=0 and d3~=0 and d2~=d3 and 1 or 0
+_ik=d3~=0 and d4~=0 and d3~=d4 and 1 or 0
+_io=d4~=0 and d5~=0 and d4~=d5 and 1 or 0
+_fj=_it+_is+_ik+_io
+_ic=_c+r1+r2+r3+r4+r5
+_ij=_ic>0 and abs(close-close[5])/_ic*100 or 100
+_dr=_fj>=3 and _ij<18
+_b=(r1+r2+r3+r4+r5)/5
+_ff=_b*(tonumber(f3_ema_zm_txt)or 5)/100
+TA=close>close[1]and close>_o and _o>_o[1]+_ff
+TB=close<close[1]and close<_o and _o<_o[1]-_ff
+_er=highest(high[2],10)
+_eu=lowest(low[2],10)
+_cm=high[1]-low[1]
+_gy=_cm>0 and(high[1]-max(open[1],close[1]))/_cm or 0
+_gx=_cm>0 and(min(open[1],close[1])-low[1])/_cm or 0
+_hn=f3_rej_on and _gy>=0.30 and high[1]>=_er-_b*0.20 and close<=high[1]
+_hp=f3_rej_on and _gx>=0.30 and low[1]<=_eu+_b*0.20 and close>=low[1]
+_ih=abs(close-close[5])
+_as=_b>0 and _ih>=_b*4.5
+_hi=_b>0 and _a/_b*100 or 100
+_cw=_hi<70
+_cc=_i>=30
+_cp=_h>=30
+_dg=_as and _k and(_cw or _cc)
+_dq=_as and _q and(_cw or _cp)
+_hx=_bz and _as and _k
+_ho=_bl and _as and _q
+_ey=close[1]<=close[2]+_b*0.18 or _cc
+_em=close[1]>=close[2]-_b*0.18 or _cp
+_eb=close>high[1]and close>open and _a>_b*0.40
+_dv=close<low[1]and close<open and _a>_b*0.40
+_ci=_hx and _ey and not _eb
+_co=_ho and _em and not _dv
+_bv=_b*0.30
+_gp=highest(high[1],_ek)
+_fv=lowest(low[1],_ek)
+_gm=(_gp-high[1])<=_bv and(_gp-high[2])<=_bv
+_ft=(low[1]-_fv)<=_bv and(low[2]-_fv)<=_bv
+_gh=close[1]<=close[2]+_b*0.18
+_fm=close[1]>=close[2]-_b*0.18
+_fe=close>high[1]and close>open and _a>_b*0.40
+_eg=close<low[1]and close<open and _a>_b*0.40
+_cj=_bz and _k and _gm and _gh and not _fe
+_cq=_bl and _q and _ft and _fm and not _eg
+_t=highest(high[1],9)
+_u=lowest(low[1],9)
+_dn=_t-_u
+_cn=r1+r2+r3+r4+r5+r6+r7+r8
+_fh=(_cn>0)and(abs(close[1]-close[9])/_cn)or 1
+_by=(_b>0)and(_dn>=_b*3.30)and(_fh<=0.33)
+_bf=high[2]-low[2]
+_bg=high[3]-low[3]
+_fs=(r1>0)and((high[1]-max(open[1],close[1]))/r1>=0.32)and(_t-high[1]<=_b*0.65)
+_gc=(_bf>0)and((high[2]-max(open[2],close[2]))/_bf>=0.32)and(_t-high[2]<=_b*0.65)
+_gd=(_bg>0)and((high[3]-max(open[3],close[3]))/_bg>=0.32)and(_t-high[3]<=_b*0.65)
+_fu=(r1>0)and((min(open[1],close[1])-low[1])/r1>=0.32)and(low[1]-_u<=_b*0.65)
+_fk=(_bf>0)and((min(open[2],close[2])-low[2])/_bf>=0.32)and(low[2]-_u<=_b*0.65)
+_fq=(_bg>0)and((min(open[3],close[3])-low[3])/_bg>=0.32)and(low[3]-_u<=_b*0.65)
+_dx=_fs or _gc or _gd
+_dt=_fu or _fk or _fq
+_cx=close>=_t-_b*0.85
+_dc=close<=_u+_b*0.85
+_db=(close>_t+_b*0.18)and(close>open)and(_a>=_b*0.40)
+_cy=(close<_u-_b*0.18)and(close<open)and(_a>=_b*0.40)
+_an=_by and _cx and(not _db)and(_dx or close<=open)
+_ao=_by and _dc and(not _cy)and(_dt or close>=open)
+local _cd=security(current_ticker_id,"15m")
+if true then
+_af=0
+_y=0
+if _cd then
+_af=get_value(_cd.high[1],0)
+_y=get_value(_cd.low[1],0)
+end
+_cv=_af>_y and _y>0
+end
+_j=false
+_l=false
+_j=false
+_l=false
+if _cv and _b>0 then
+_cs=r1>0 and(high[1]-max(open[1],close[1]))/r1*100 or 0
+_ct=r1>0 and(min(open[1],close[1])-low[1])/r1*100 or 0
+_ea=close>high[1]and close>open and _a>_b*0.40
+_du=close<low[1]and close<open and _a>_b*0.40
+_do=abs(high[1]-_af)<=_b*0.60 and
+_cs>=30 and close<=high[1]+_b*0.10 and not _ea
+_dd=abs(low[1]-_y)<=_b*0.60 and
+_ct>=30 and close>=low[1]-_b*0.10 and not _du
+_cu=high>=_af-_b*0.18 and close<=_af+_b*0.08 and
+_i>=28 and high-close>=_b*0.18
+_cl=low<=_y+_b*0.18 and close>=_y-_b*0.08 and
+_h>=28 and close-low>=_b*0.18
+_j=_do or _cu
+_l=_dd or _cl
+end
+_be=fs01_saida_caixa_on and _b>0 and
+close>highest(high[1],7)+_b*0.15 and close>open and
+_a>=_b*0.75 and _c>0 and _a/_c*100>=60 and
+close>_o and _o>_o[1]and not(fs01_m15_pa_on and _j)
+_bq=fs01_saida_caixa_on and _b>0 and
+close<lowest(low[1],7)-_b*0.15 and close<open and
+_a>=_b*0.75 and _c>0 and _a/_c*100>=60 and
+close<_o and _o<_o[1]and not(fs01_m15_pa_on and _l)
+_EM=r1>=_ad*0.5 and abs(close[1]-open[1])>=r1*0.4 and r2>=_ad*0.5 and abs(close[2]-open[2])>=r2*0.4
+_EU=close[1]>close[2]and close[2]>close[3]and close[1]>_o[1]and _EM
+_ED=close[1]<close[2]and close[2]<close[3]and close[1]<_o[1]and _EM
+_br=TA and(not _dl or _be or _EU)and
+(not _au or _be or _EU)and _a>_ad*0.20 and
+not _ab and not _bs and not _dr and not _dg and
+not _ci and not _cj and
+not(fs01_m15_pa_on and _j)and
+not(fs02_barreira_f9_on and _an)
+_cb=TB and(not _dl or _bq or _ED)and
+(not _au or _bq or _ED)and _a>_ad*0.20 and
+not _ab and not _bw and not _dr and not _dq and
+not _co and not _cq and
+not(fs01_m15_pa_on and _l)and
+not(fs02_barreira_f9_on and _ao)
+_bi=(r1+r2+r3+r4+r5+r6+r7+r8+r9+_im+_il+_ir+_iq+_ip)/14
+_gk=high[3]>high[4]and high[3]>high[5]and high[3]>=high[2]and high[3]>=high[1]
+_fx=low[3]<low[4]and low[3]<low[5]and low[3]<=low[2]and low[3]<=low[1]
+local _hd=make_series()
+local _hk=make_series()
+local _he=make_series()
+local _gv=make_series()
+local _hh=make_series()
+local _gw=make_series()
+_cg=nz(_hd[1],0)
+_ch=nz(_hk[1],0)
+_ck=nz(_he[1],0)
+_ce=nz(_gv[1],0)
+_ei=nz(_hh[1],999)+1
+_en=nz(_gw[1],999)+1
+if _gk then _ch=_cg; _cg=high[3]; _ei=3 end
+if _fx then _ce=_ck; _ck=low[3]; _en=3 end
+_hd:set(_cg)
+_hk:set(_ch)
+_he:set(_ck)
+_gv:set(_ce)
+_hh:set(_ei)
+_gw:set(_en)
+_bj=max(_cg,_ch)
+_ap=min(_ck,_ce)
+_w=_bj-_ap
+_gz=(tonumber(f3_tol_txt)or 30)/100
+_df=abs(close[1]-close[2])+abs(close[2]-close[3])+abs(close[3]-close[4])+abs(close[4]-close[5])+abs(close[5]-close[6])+abs(close[6]-close[7])+abs(close[7]-close[8])+abs(close[8]-close[9])+abs(close[9]-close[10])+abs(close[10]-close[11])+abs(close[11]-close[12])+abs(close[12]-close[13])
+_eo=_df+abs(close[13]-close[14])+abs(close[14]-close[15])+abs(close[15]-close[16])+abs(close[16]-close[17])+abs(close[17]-close[18])+abs(close[18]-close[19])+abs(close[19]-close[20])+abs(close[20]-close[21])
+_hw=_eo>0 and abs(close[1]-close[21])/_eo or 1
+d6=dir(open[6],close[6])
+d7=dir(open[7],close[7])
+d8=dir(open[8],close[8])
+d9=dir(open[9],close[9])
+_in=dir(open[10],close[10])
+_iy=d5~=0 and d6~=0 and d5~=d6 and 1 or 0
+_iw=d6~=0 and d7~=0 and d6~=d7 and 1 or 0
+_iv=d7~=0 and d8~=0 and d7~=d8 and 1 or 0
+_ix=d8~=0 and d9~=0 and d8~=d9 and 1 or 0
+_iu=d9~=0 and _in~=0 and d9~=_in and 1 or 0
+_hr=(_it+_is+_ik+_io+_iy+_iw+_iv+_ix+_iu)/9
+_dz=f3_lateral_on and _bi>0 and _ch>0 and _ce>0 and
+_ei<=40 and _en<=40 and
+abs(_cg-_ch)<=_w*_gz and abs(_ck-_ce)<=_w*_gz and
+_w>=_bi*3.0 and _w<=_bi*10.0 and
+_hw<0.30 and _hr<0.70 and
+close[1]<=_bj+_bi*0.25 and close[1]>=_ap-_bi*0.25
+_hb=_w>0 and(close-_ap)/_w or 0.5
+_dj=_ap+_w*0.25
+_cz=_bj-_w*0.25
+_gq=_df>0 and abs(close[1]-close[13])/_df or 1
+local _fw=make_series()
+local _fz=make_series()
+_dy=nz(_fw[1],0)
+if _dy==0 and _gq<(tonumber(f3_lat_ent_txt)or 25)/100 then _dy=1
+elseif _dy==1 and _gq>(tonumber(f3_lat_sai_txt)or 35)/100 then _dy=0 end
+_fw:set(_dy)
+_hu=_dy==nz(_fw[1],0)and nz(_fz[1],0)+1 or 1
+_fz:set(_hu)
+_ay=_dy==1 and _hu>=2
+_hj=highest(high[1],12)
+_hc=lowest(low[1],12)
+_hm=(low[1]<=_dj and r1>0 and(min(open[1],close[1])-low[1])/r1>=0.30 and close[1]>_ap)or
+(low[2]<=_dj and close[1]>high[2])
+_ha=(high[1]>=_cz and r1>0 and(high[1]-max(open[1],close[1]))/r1>=0.30 and close[1]<_bj)or
+(high[2]>=_cz and close[1]<low[2])
+_gt=(close[1]>open[1]and 1 or 0)+((close[1]>open[1]and close[2]>open[2])and 1 or 0)
+_gs=(close[1]<open[1]and 1 or 0)+((close[1]<open[1]and close[2]<open[2])and 1 or 0)
+local _gb=make_series()
+local _fr=make_series()
+local _ds=make_series()
+local _dp=make_series()
+_ec=nz(_ds[1],0)
+_ee=nz(_dp[1],0)
+if nz(_gb[1],0)==1 then _ec=1 elseif low[1]<=_dj then _ec=0 end
+if nz(_fr[1],0)==1 then _ee=1 elseif high[1]>=_cz then _ee=0 end
+_ds:set(_ec)
+_dp:set(_ee)
+_ex=_hb<0.50 and _gt<=1 and(_bj-close)>=_bi*0.50 and _ec==0
+_fb=_hb>0.50 and _gs<=1 and(close-_ap)>=_bi*0.50 and _ee==0
+_cr=_dz and _hm and _ex and not _br and
+TA and _a>_ad*0.20 and not _ab and not _bs and
+not _dg and not _ci and not _cj and
+not(fs01_m15_pa_on and _j)and not(fs02_barreira_f9_on and _an)
+_dm=_dz and _ha and _fb and not _cb and
+TB and _a>_ad*0.20 and not _ab and not _bw and
+not _dq and not _co and not _cq and
+not(fs01_m15_pa_on and _l)and not(fs02_barreira_f9_on and _ao)
+_g=_b
+_z=_c>0 and _a/_c*100 or 0
+_ar=max(high[1],max(high[2],high[3]))
+_am=min(low[1],min(low[2],low[3]))
+_bn=_bz and _g>0 and(close[1]-close[6])>=_g*1.5
+_ba=_bl and _g>0 and(close[6]-close[1])>=_g*1.5
+_bo=high>=_ar and(high-_ar)<=_g*0.20
+_bd=low<=_am and(_am-low)<=_g*0.20
+_bm=high[1]>=max(high[2],high[3])and high<=high[1]+_g*0.05
+_az=low[1]<=min(low[2],low[3])and low>=low[1]-_g*0.05
+_hq=close>_ar+_g*0.05 and close>open and _z>=55 and _i<=30
+_ht=close<_am-_g*0.05 and close<open and _z>=55 and _h<=30
+_gu=_bn and _k and(_bo or _bm)and not _hq
+_gi=_ba and _q and(_bd or _az)and not _ht
+local _bk=make_series()
+local _x=make_series()
+local _s=make_series()
+local _ae=make_series()
+_bk:set(nz(_bk[1],0))
+_x:set(nz(_x[1],_ar))
+_s:set(nz(_s[1],_am))
+_ae:set(nz(_ae[1],close[1]))
+_da=nz(_bk[1],0)
+_et=min(low[1],low[2])
+_ep=max(high[1],high[2])
+_ac=_g*tonumber(rev_corpo_base_pct)/100
+_bu=_g*tonumber(rev_break_micro_pct)/100
+_bx=_bn and _k and(_bo or _bm)and
+close<open and _a>=_ac and _z>=tonumber(rev_corpo_vela_pct)and
+close<_et-_bu and close<close[1]and _h<=tonumber(rev_pavio_contra_max)
+_bt=_ba and _q and(_bd or _az)and
+close>open and _a>=_ac and _z>=tonumber(rev_corpo_vela_pct)and
+close>_ep+_bu and close>close[1]and _i<=tonumber(rev_pavio_contra_max)
+local _gn=make_series()
+local _hg=make_series()
+local _go=make_series()
+local _di=make_series()
+_HT=get_value(open_time,0)
+if _HO~=_HT then _HO=_HT;_HA=_HCA or 0;_HV=_HCV or get_value(close[1],close);_HP=_HCP or 0;_HN=(_HCN or 99)+1;_PSv=_PSC or 0;_PLv=_PLC or 0;_PNv=(_PNC or 99)+1 end
+_ag=_HA;_v=_HV;_p=_HP
+_bh=max(_b,0.00000001)
+if _HN>=3 then _ag=0 else _p=0 end
+_gl=_gu and not _bx and
+(_ag~=1 or(_p==1 and high>_v+_bh*.50))
+_fl=_gi and not _bt and
+(_ag~=-1 or(_p==1 and low<_v-_bh*.50))
+_fy=get_value(open_time,0)
+if _ef~=_fy then
+_ef=_fy;_bp=false;_bb=false
+end
+if _gl and not _bb then _bp=true end
+if _fl and not _bp then _bb=true end
+_at=(_bp==true)
+_aq=(_bb==true)
+_bc=_ag;_ak=_v
+if _at then
+_bc=1;_ak=max(high,high[1]);_p=0
+elseif _aq then
+_bc=-1;_ak=min(low,low[1]);_p=0
+end
+_gn:set(_bc)
+_hg:set(_ak)
+_go:set(_p)
+_HCA=_bc;_HCV=_ak;_HCP=_p;_HCN=(_at or _aq)and 0 or _HN
+if _at then _PSC=1;_PLC=_ak;_PNC=0 elseif _aq then _PSC=-1;_PLC=_ak;_PNC=0 else _PSC=_PSv;_PLC=_PLv;_PNC=_PNv end
+_di:set((_at or _aq)and 1 or 0)
+_hv=tonumber(f3_h_velas_txt)or 2
+_ah=_at or _aq or(_hv>=1 and nz(_di[1],0)==1)or(_hv>=2 and nz(_di[2],0)==1)
+_fp=_da==1 and close>get_value(_x)+_g*0.15 and close>open and _a>=_g*0.40 and _i<40
+_fd=_da==-1 and close<get_value(_s)-_g*0.15 and close<open and _a>=_g*0.40 and _h<40
+_fn=_da==1 and high>=get_value(_x)-_g*0.05 and close<get_value(_x)-_g*0.08
+_ew=_da==-1 and low<=get_value(_s)+_g*0.05 and close>get_value(_s)+_g*0.08
+_fo=_da==1 and close<get_value(_ae)-_bu and close<open and
+_a>=_ac and _z>=tonumber(rev_corpo_vela_pct)and
+close<close[1]and _h<=tonumber(rev_pavio_contra_max)
+_fa=_da==-1 and close>get_value(_ae)+_bu and close>open and
+_a>=_ac and _z>=tonumber(rev_corpo_vela_pct)and
+close>close[1]and _i<=tonumber(rev_pavio_contra_max)
+_fc=_da==1 and(_fn or _bm)and _fo
+_el=_da==-1 and(_ew or _az)and _fa
+_ai=_bx or _fc
+_al=_bt or _el
+if _ai or _al then
+_bk:set(0)
+elseif _at then
+_x:set(max(high,high[1]))
+_ae:set(_et)
+_bk:set(1)
+elseif _aq then
+_s:set(min(low,low[1]))
+_ae:set(_ep)
+_bk:set(-1)
+elseif _fp or _fd then
+_bk:set(0)
+end
+_hl=_cm>0 and abs(close[1]-open[1])/_cm or 1
+_hs=_cm>0 and(_hl<=0.25 or _gy>=0.60 or _gx>=0.60)
+_hf=high[1]>=_er-_b*0.30 or low[1]<=_eu+_b*0.30
+_dh=f3_doji_on and _hs and(_ay or _hf)
+-- ============================================================
+-- MOTOR F9 PARA ESCADINHAS: F9 so pede preco > fechamento
+-- anterior, posicao em relacao a EMA10 e inclinacao positiva.
+-- F6 exige AINDA inclinacao >= 6% do range medio (_ff).
+-- Este caminho recupera somente uma continuacao confirmada.
+-- Nao usa make_series e NAO mexe nas barras F3/M15.
+-- ============================================================
+_f9ta=close>close[1] and close>_o and _o>_o[1]
+_f9tb=close<close[1] and close<_o and _o<_o[1]
+-- Avancos no FECHAMENTO de 2 entre as 3 velas anteriores.
+_f9up1=close[1]>close[2] and 1 or 0
+_f9up2=close[2]>close[3] and 1 or 0
+_f9up3=close[3]>close[4] and 1 or 0
+_f9dn1=close[1]<close[2] and 1 or 0
+_f9dn2=close[2]<close[3] and 1 or 0
+_f9dn3=close[3]<close[4] and 1 or 0
+_f9escada_alta=(_f9up1+_f9up2+_f9up3)>=2 and
+ close[1]>_o[1] and close>close[3]+_b*0.55
+_f9escada_baixa=(_f9dn1+_f9dn2+_f9dn3)>=2 and
+ close[1]<_o[1] and close<close[3]-_b*0.55
+-- Os filtros de risco do F6 seguem valendo inclusive no resgate:
+-- pos-impulso, fluxo falso, exaustao, H, REV, doji,
+-- rejeicao, M15 fechada, barreira lateral de 9 e horario.
+_f9r9compra=f9_resgate_escadas_on and _f9ta and _f9escada_alta and
+ close>open and _a>_ad*0.20 and not _ab and not _bs and
+ not _dr and not _dg and not _ci and not _cj and
+ not(fs01_m15_pa_on and _j) and
+ not(fs02_barreira_f9_on and _an) and
+ not _br and not _cr
+_f9r9venda=f9_resgate_escadas_on and _f9tb and _f9escada_baixa and
+ close<open and _a>_ad*0.20 and not _ab and not _bw and
+ not _dr and not _dq and not _co and not _cq and
+ not(fs01_m15_pa_on and _l) and
+ not(fs02_barreira_f9_on and _ao) and
+ not _cb and not _dm
+_d=(_br or _cr or _f9r9compra)and not _hn and not _dh and not _ah and not _ai and not _al
+_e=(_cb or _dm or _f9r9venda)and not _hp and not _dh and not _ah and not _ai and not _al
+_KT=highest(high[1],8)
+_KB=lowest(low[1],8)
+_KW=_KT-_KB
+_KX=_b>0 and _KW>0 and _KW<=_b*4
+-- F6 original: proibe operar na borda de uma caixa de 8 velas.
+-- Excecao OPCIONAL para candidatos F6/F9 com escadinha firme:
+-- 2 fechamentos anteriores na mesma direcao, deslocamento >=
+-- 1,25x media, sem lateralizacao travada; preserva TODAS as
+-- protecoes de M15, H e pos-H aplicadas abaixo.
+_f9caixa_alta=f9_resgate_escadas_on and f9_escadas_liberar_caixa8 and
+ (_br or _cr or _f9r9compra) and _f9ta and _f9escada_alta and
+ close>open and _f9up1==1 and _f9up2==1 and
+ close>close[3]+_b*1.25 and not _dr
+_f9caixa_baixa=f9_resgate_escadas_on and f9_escadas_liberar_caixa8 and
+ (_cb or _dm or _f9r9venda) and _f9tb and _f9escada_baixa and
+ close<open and _f9dn1==1 and _f9dn2==1 and
+ close<close[3]-_b*1.25 and not _dr
+_f9salvou_caixa_compra=_f9caixa_alta and _KX and close>=_KB+_KW*0.75 and close<=_KT
+_f9salvou_caixa_venda=_f9caixa_baixa and _KX and close<=_KB+_KW*0.25 and close>=_KB
+_d=_d and not(_KX and close>=_KB+_KW*0.75 and close<=_KT and not _f9caixa_alta)
+_e=_e and not(_KX and close<=_KB+_KW*0.25 and close>=_KB and not _f9caixa_baixa)
+_d=_d and not(_PSv==1 and _PNv<=2 and not(close>_PLv+_b*0.15 and close>open))
+_e=_e and not(_PSv==-1 and _PNv<=2 and not(close<_PLv-_b*0.15 and close<open))
+_BT=_cv and(close[1]>open[1]and close[1]>=_af-_b*0.5 and close[1]<=_af+_b*0.15 or close[2]>open[2]and close[2]>=_af-_b*0.5 and close[2]<=_af+_b*0.15)
+_BF=_cv and(close[1]<open[1]and close[1]<=_y+_b*0.5 and close[1]>=_y-_b*0.15 or close[2]<open[2]and close[2]<=_y+_b*0.5 and close[2]>=_y-_b*0.15)
+_d=_d and not(_BT and not(close>_af+_b*0.15))
+_e=_e and not(_BF and not(close<_y-_b*0.15))
+input_group{
+"Corte horario M1",
+fs01_corte_31s=input{default="1",type=input.string},
+f3_conf_txt=input{default="0",type=input.string}
+}
+_aj=nil
+_n=true
+if tonumber(fs01_corte_31s)==1 and resolution=="1m" then
+_n=false
+local _dk=security(current_ticker_id,"1s")
+if _dk then
+local _dw=get_value(open_time,-1)
+local _ax=get_value(_dk.open_time,-1)
+_aj=_ax
+if _dw>0 and _ax>=_dw
+and _ax<_dw+30 then
+_n=true
+end
+end
+end
+_d=_d and _n
+_e=_e and _n
+_aa=get_value(open_time,0)
+if _de~=_aa then
+_de=_aa
+_m=0
+_r=false
+_aw=nil
+_av=nil
+end
+_fg=tonumber(f3_conf_txt)or 3
+_id=_fg>0 and _bn and _k
+_hz=_fg>0 and _ba and _q
+if _m==0 then
+if _d and not _e then
+_av=nil
+_ed=true
+if _id and _aj then
+if _aw==nil then _aw=_aj end
+_ed=(_aj-_aw)>=_fg
+end
+if _ed then
+_m=1
+_r=_cr and not _br
+end
+elseif _e and not _d then
+_aw=nil
+_ed=true
+if _hz and _aj then
+if _av==nil then _av=_aj end
+_ed=(_aj-_av)>=_fg
+end
+if _ed then
+_m=-1
+_r=_dm and not _cb
+end
+else
+_aw=nil
+_av=nil
+end
+end
+_d=_m==1 and not _ah and not _ai and not _al
+_e=_m==-1 and not _ah and not _ai and not _al
+_gb:set((_d and _r==true)and 1 or 0)
+_fr:set((_e and _r==true)and 1 or 0)
+if tonumber(fs01_candles_vivos_txt)==1 then
+_f=neutro
+if f3_velas_estado then
+_gr=not((close[1]>_o[1]and _o[1]>_o[2]+_ff)or(close[1]<_o[1]and _o[1]<_o[2]-_ff))
+if _d then
+_f=positivo
+elseif _e then
+_f=negativo
+elseif _gr then
+_f=f3_cor_desc
+elseif close>open then
+_f=positivo
+elseif close<open then
+_f=negativo
+end
+elseif close>open then
+_f=positivo
+elseif close<open then
+_f=negativo
+end
+plot_candle(open,high,low,close,"FS 02 CORES VIVAS",_f)
+end
+plot_shape(_at,"H_TOPO",shape_style.triangledown,shape_size.large,h_cor,shape_location.abovebar,0,"H","#FFFFFF")
+plot_shape(_aq and not _at,"H_FUNDO",shape_style.triangleup,shape_size.large,h_cor,shape_location.belowbar,0,"H","#FFFFFF")
+plot_shape(_ai and not _at and not _aq,"F9_REV_TOPO",shape_style.arrowdown,shape_size.large,rev_cor,shape_location.abovebar,0,"REV","#FFFFFF")
+plot_shape(_al and not _at and not _aq and not _ai,"F9_REV_FUNDO",shape_style.arrowup,shape_size.large,rev_cor,shape_location.belowbar,0,"REV","#FFFFFF")
+plot_shape(_d,"COMPRA",shape_style.arrowup,shape_size.large,compra,shape_location.belowbar,0,"Compra","#fcfc04")
+plot_shape(_e,"VENDA",shape_style.arrowdown,shape_size.large,venda,shape_location.abovebar,0,"Venda","#fcfc01")
+-- Marcadores de auditoria opcionais. Setas reais continuam
+-- iguais as do F6; R9 aparece quando o caminho F9 participou
+-- por todas as travas finais e virou seta confirmada no motor.
+-- Inclui entrada originalmente calada pela caixa 8.
+plot_shape(f9_escadas_mostrar_r9 and _d and (_f9r9compra or _f9salvou_caixa_compra),
+ "F9_ESCADA_COMPRA",shape_style.square,shape_size.small,
+ "#FFD700",shape_location.belowbar,0,"R9","#FFD700")
+plot_shape(f9_escadas_mostrar_r9 and _e and (_f9r9venda or _f9salvou_caixa_venda),
+ "F9_ESCADA_VENDA",shape_style.square,shape_size.small,
+ "#FFD700",shape_location.abovebar,0,"R9","#FFD700")
+if true then
+plot_shape(f3_mostrar_detector and _dz,"F3_LATERAL",shape_style.square,shape_size.large,f3_cor_lateral,shape_location.bottom,0,"","#FFFFFF")
+end
+input_group{
+"Espessura das barras",
+f3_larg_m15=input{default=2,type=input.line_width},
+f3_larg_m5=input{default=1,type=input.line_width}
+}
+if true then
+if f3_mostrar_m15 and _cd and not _ay then
+plot(_cd.high[1],"M15 superior",f3_cor_m15,f3_larg_m15,0,style.levels,na_mode.continue)
+plot(_cd.low[1],"M15 inferior",f3_cor_m15,f3_larg_m15,0,style.levels,na_mode.continue)
+end
+if f3_mostrar_m5 and _ay then
+plot(_hj,"Lateral superior",f3_cor_m5,f3_larg_m5,0,style.levels,na_mode.continue)
+plot(_hc,"Lateral inferior",f3_cor_m5,f3_larg_m5,0,style.levels,na_mode.continue)
+end
+end
+_fsa="FS Trader Fabio Santiago 99 99195-0983"
+-- FS Trader | Fabio Santiago | WhatsApp (99) 99195-0983 | t.me/Fabiosantiagotrader
