@@ -1,5 +1,7 @@
 # 📊 Projeto FS Trader Scripts
 
+<p align="center"><img src="artes/FS_TRADER_CAPA.webp" alt="Capa oficial aprovada do Projeto FS Trader Scripts" width="100%" /></p>
+
 **Indicadores de análise técnica em Quadcode Script (QCS)**  
 **Desenvolvedor: Fábio Santiago Trader**
 
@@ -8,6 +10,22 @@ Um espaço dedicado ao desenvolvimento, estudo e evolução de indicadores gráf
 O **FS Trader** reúne pesquisas sobre leitura de preço, suporte e resistência, força e exaustão das velas, zonas de consolidação e critérios de proteção. O foco é criar ferramentas que auxiliem a interpretação do mercado com clareza, disciplina e gestão de risco.
 
 > **Nossa filosofia:** o indicador é uma ferramenta de leitura do gráfico, não uma promessa de acerto nem um substituto para a análise do trader.
+
+## 📸 FS Trader em ação | Capturas reais
+
+Abaixo estão **sete artes com capturas reais da plataforma Exnova**, com as velas, marcações H/HEAVY, setas e níveis originais preservados. Os enquadramentos foram tratados apenas para melhorar a apresentação visual. Clique em cada arte para ampliá-la.
+
+| Tendência e reversão | AUD/CAD: do topo ao suporte |
+|:---:|:---:|
+| [<img src="artes/FS_TRADER_ARTE_01.webp" alt="Exemplo real de impulso e reversão no FS Trader" width="430" />](artes/FS_TRADER_ARTE_01.webp) | [<img src="artes/FS_TRADER_ARTE_02.webp" alt="AUD/CAD: exemplos de movimentos de topo ao suporte" width="430" />](artes/FS_TRADER_ARTE_02.webp) |
+| **AUD/CAD: movimentos de ida e volta** | **FR 40: tendência e transição** |
+| [<img src="artes/FS_TRADER_ARTE_03.webp" alt="AUD/CAD: movimentos de ida e volta com indicadores reais" width="430" />](artes/FS_TRADER_ARTE_03.webp) | [<img src="artes/FS_TRADER_ARTE_04.webp" alt="FR 40: sequência de alta e baixa com H HEAVY" width="430" />](artes/FS_TRADER_ARTE_04.webp) |
+| **SOL/USD: zonas e oscilações** | **US 500: fluxo de alta e consolidação** |
+| [<img src="artes/FS_TRADER_ARTE_05.webp" alt="SOL/USD: leitura gráfica com zonas e sinais reais" width="430" />](artes/FS_TRADER_ARTE_05.webp) | [<img src="artes/FS_TRADER_ARTE_06.webp" alt="US 500: indicadores durante alta e consolidação" width="430" />](artes/FS_TRADER_ARTE_06.webp) |
+| **USD/ARS: continuidade de baixa** | **Galeria de imagens** |
+| [<img src="artes/FS_TRADER_ARTE_07.webp" alt="USD/ARS: continuidade de baixa com sinais reais" width="430" />](artes/FS_TRADER_ARTE_07.webp) | [Abrir a pasta de artes e a capa](artes/) |
+
+> **Transparência:** estas imagens ilustram o funcionamento visual do indicador em momentos específicos. Não constituem backtest de rentabilidade nem garantia de acerto. Alguns sinais podem perder validade durante a formação das velas.
 
 ## 🧩 Scripts disponíveis
 
