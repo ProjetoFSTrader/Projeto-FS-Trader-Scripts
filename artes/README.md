@@ -1,22 +1,24 @@
-# Galeria visual do FS Trader
+# 📸 Galeria visual do Projeto FS Trader Scripts
 
-Esta pasta é destinada à capa aprovada e a sete artes baseadas em capturas reais da Exnova.
+**Desenvolvedor: Fábio Santiago Trader**
 
-A **capa** é uma composição ilustrativa. As **sete artes** preservam as velas e as marcações originais dos gráficos nas fotografias enviadas pelo desenvolvedor.
+Esta pasta reúne a **capa aprovada** e **sete artes produzidas a partir de fotografias reais do indicador na plataforma Exnova**.
 
-## Arquivos da galeria
+A capa é uma **composição gráfica ilustrativa**. As outras sete imagens foram enquadradas e tratadas para apresentação; as velas e as marcações presentes nas fotografias originais foram preservadas.
 
-| Arquivo | Exemplo |
+## Imagens publicadas
+
+| Arquivo | Tema |
 | --- | --- |
-| `FS_Trader_Capa.png` | Capa oficial do Projeto FS Trader Scripts |
-| `FS_01_Arte_Real.png` | Impulso e reversão |
-| `FS_02_Arte_Real.png` | Do topo ao suporte, AUD/CAD |
-| `FS_03_Arte_Real.png` | Movimentos de ida e volta, AUD/CAD |
-| `FS_04_Arte_Real.png` | Tendência e transição, FR 40 |
-| `FS_05_Arte_Real.png` | Zonas e oscilações, SOL/USD |
-| `FS_06_Arte_Real.png` | Fluxo de alta e consolidação, US 500 |
-| `FS_07_Arte_Real.png` | Continuidade de baixa, USD/ARS |
+| [FS_TRADER_CAPA.webp](FS_TRADER_CAPA.webp) | Capa do Projeto FS Trader Scripts |
+| [FS_TRADER_ARTE_01.webp](FS_TRADER_ARTE_01.webp) | Impulso e reversão |
+| [FS_TRADER_ARTE_02.webp](FS_TRADER_ARTE_02.webp) | AUD/CAD: do topo ao suporte |
+| [FS_TRADER_ARTE_03.webp](FS_TRADER_ARTE_03.webp) | AUD/CAD: movimentos de ida e volta |
+| [FS_TRADER_ARTE_04.webp](FS_TRADER_ARTE_04.webp) | FR 40: tendência e transição |
+| [FS_TRADER_ARTE_05.webp](FS_TRADER_ARTE_05.webp) | SOL/USD: zonas e oscilações |
+| [FS_TRADER_ARTE_06.webp](FS_TRADER_ARTE_06.webp) | US 500: fluxo de alta e consolidação |
+| [FS_TRADER_ARTE_07.webp](FS_TRADER_ARTE_07.webp) | USD/ARS: continuidade de baixa |
 
-> Material para demonstração visual e estudo. As imagens não são prova de rentabilidade, garantia de acerto ou recomendação de operações.
+**Status:** todas as oito imagens estão publicadas e podem ser visualizadas neste repositório. A [página principal](../README.md) apresenta a capa e a galeria.
 
-**Status:** imagens aprovadas pelo desenvolvedor, aguardando transferência dos oito arquivos de imagem para esta pasta.
+> **Nota:** os exemplos ilustram situações específicas do gráfico e não são uma avaliação estatística do desempenho. Nenhum indicador garante acertos ou resultados financeiros.
