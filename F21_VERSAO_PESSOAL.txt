@@ -1,5 +1,6 @@
--- F20.2 LAB
-instrument{name="F20.2 | FÁBIO SANTIAGO | 99 99195-0983",icon="jpg",overlay=true}
+-- FS TRADER F21 PESSOAL | DIRECAO MAIS FLEXIVEL | HISTORICO PROTEGIDO
+-- Corrigido modulo F20.2: apenas valores escalares de velas fechadas em IF.
+instrument{name="F21 | FÁBIO SANTIAGO | 99 99195-0983",icon="jpg",overlay=true}
 input_group{
     "Compra",
     comprar_color=input{default="green",type=input.color}
@@ -343,14 +344,29 @@ local f20topo=lb_hi>0 and abs(close-lb_hi)<=f20m*.50
 local f20fundo=lb_lo>0 and abs(close-lb_lo)<=f20m*.50
 input_group{"F20.2 - DIRECAO",f202on=input{default=true,type=input.boolean},
     f202lim=input{default="36",type=input.string}}
+-- F21: ler numeros das nove velas FECHADAS; nao usar series diretamente em IF.
 local f202c,f202v,f202r=0,0,0
+local f202historico_ok=true
 for k=1,9 do
-    if close[k]>open[k] then f202c=f202c+1
-    elseif close[k]<open[k] then f202v=f202v+1 end
-    f202r=f202r+max(0,high[k]-low[k])
+    local f202ck=get_value(close[k])
+    local f202ok_k=get_value(open[k])
+    local f202hk=get_value(high[k])
+    local f202lk=get_value(low[k])
+    if f202ck==nil or f202ok_k==nil or f202hk==nil or f202lk==nil then
+        f202historico_ok=false
+    else
+        if f202ck>f202ok_k then f202c=f202c+1
+        elseif f202ck<f202ok_k then f202v=f202v+1 end
+        f202r=f202r+max(0,f202hk-f202lk)
+    end
 end
-local f202ef=f202r>0 and abs(close[1]-close[9])/f202r*100 or 0
-local f202ok=f202on and f20m>0 and z4>0 and f202ef>=max(36,tonumber(f202lim)or 36)
+local f202ef=0
+if f202historico_ok and f202r>0 then
+    local f202c1=get_value(close[1],0)
+    local f202c9=get_value(close[9],0)
+    f202ef=abs(f202c1-f202c9)/f202r*100
+end
+local f202ok=f202on and f202historico_ok and f20m>0 and z4>0 and f202ef>=max(36,tonumber(f202lim)or 36)
     and ze<=1 and z2>=f20m*.65 and z2/z4>=.60
 local f202mc=lb_hi>0 and(high<lb_hi-f20m*1.0 or
     (close[1]>lb_hi+f20m*.65 and close[2]>lb_hi+f20m*.25))
