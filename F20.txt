@@ -1,6 +1,6 @@
--- FS TRADER F20 | H + HEAVY + BORDA + FREIO DE INSISTENCIA
+-- F20 | FS TRADER | Dev. Fábio Santiago | 99 99195-0983
 -- Versao unica. Originais F20D2 e F20D3 preservados.
-instrument{name="F20 M30 PROTECAO | FÁBIO SANTIAGO | 99 99195-0983",icon="jpg",overlay=true}
+instrument{name="F20 | Dev. Fábio Santiago | 99 99195-0983",icon="jpg",overlay=true}
 input_group{
     "Compra",
     comprar_color=input{default="green",type=input.color}
@@ -304,10 +304,10 @@ q20ws=conditional(q20w)
 q20p=q20w or get_value(q20ws[1],false)or get_value(q20ws[2],false)
 q20imp=z83 and(z15 or z11)
 z91=br20on and(q20b or q20p or q20imp)
--- BORDA PREVENTIVA: somente M30 ou RETESTE SEM PROGRESSO
-input_group{"LAB borda M30",lb_on=input{default=true,type=input.boolean}}
+-- BORDA PREVENTIVA: somente M15 ou NOVA TENTATIVA SEM PROGRESSO
+input_group{"Protecao de borda M15",lb_on=input{default=true,type=input.boolean}}
 local lb_m=media_range_s8
-local lb_sec=security(current_ticker_id,"30m")
+local lb_sec=security(current_ticker_id,"15m")
 local lb_hi=lb_sec and get_value(lb_sec.high[1],0)or 0
 local lb_lo=lb_sec and get_value(lb_sec.low[1],0)or 0
 local lb_top=get_value(highest(high[1],8),0)
@@ -492,17 +492,10 @@ end
 hvS:set(z59);hvN:set(z3a);hvR:set(z3b)
 plot_shape(hv_dir==-1,"F20H_HEAVY_V",shape_style.diamond,shape_size.large,"#FF9800",shape_location.abovebar,0,"HEAVY","#FFFFFF")
 plot_shape(hv_dir==1,"F20H_HEAVY_C",shape_style.diamond,shape_size.large,"#00E5FF",shape_location.belowbar,0,"HEAVY","#FFFFFF")
--- F20 M30 ALUNO: barras visuais E protecao operacional passam para M30.
--- lb_hi/lb_lo do ultimo M30 FECHADO alimentam veto de borda e freio de repeticao F20.
--- Niveis apenas do candle M30 anterior ja fechado (sem olhar o futuro).
-input_group{
-    "Barras M30 fechadas - Suporte/Resistencia",
-    m30_res_cor=input{default="#FF0000",type=input.color},
-    m30_sup_cor=input{default="#00FF00",type=input.color},
-    m30_larg=input{default=2,type=input.line_width}
-}
-local m30_barras=security(current_ticker_id,"30m")
-if m30_barras then
-    plot(m30_barras.high[1],"M30 Resistencia",m30_res_cor,m30_larg,0,style.levels,na_mode.continue)
-    plot(m30_barras.low[1],"M30 Suporte",m30_sup_cor,m30_larg,0,style.levels,na_mode.continue)
+-- LINHAS BRANCAS: niveis M15 ja fechados
+input_group{"Barras M15 fechadas",m15cor=input{default="#FFFFFF",type=input.color},m15larg=input{default=2,type=input.line_width}}
+local m15s=security(current_ticker_id,"15m")
+if m15s then
+    plot(m15s.high[1],"M15 Superior",m15cor,m15larg,0,style.levels,na_mode.continue)
+    plot(m15s.low[1],"M15 Inferior",m15cor,m15larg,0,style.levels,na_mode.continue)
 end

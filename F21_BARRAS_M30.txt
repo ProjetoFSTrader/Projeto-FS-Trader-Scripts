@@ -1,6 +1,6 @@
--- FS TRADER F20 | H + HEAVY + BORDA + FREIO DE INSISTENCIA
--- Versao unica. Originais F20D2 e F20D3 preservados.
-instrument{name="F20 | FÁBIO SANTIAGO | 99 99195-0983",icon="jpg",overlay=true}
+-- F21 BARRAS M30 | FS TRADER | Dev. Fábio Santiago | 99 99195-0983
+-- Motor pessoal com leitura historica e barras M30 fechadas.
+instrument{name="F21 BARRAS M30 | Dev. Fábio Santiago | 99 99195-0983",icon="jpg",overlay=true}
 input_group{
     "Compra",
     comprar_color=input{default="green",type=input.color}
@@ -285,7 +285,6 @@ r5_s:set(r5_d)
 r5_n:set(r5_lim)
 z8f=r5_d==1
 z90=r5_d==-1
--- FREIO DE BRIGA (motor original)
 input_group{"FREIO BRIGA REAL",br20on=input{default=true,type=input.boolean}}
 q20sum=z6+z1a+z1b+z29+z2a
 q20eff=q20sum>0 and abs(close[1]-close[5])/q20sum or 1
@@ -304,10 +303,9 @@ q20ws=conditional(q20w)
 q20p=q20w or get_value(q20ws[1],false)or get_value(q20ws[2],false)
 q20imp=z83 and(z15 or z11)
 z91=br20on and(q20b or q20p or q20imp)
--- BORDA PREVENTIVA: somente M15 ou RETESTE SEM PROGRESSO
-input_group{"LAB borda M15",lb_on=input{default=true,type=input.boolean}}
+input_group{"Protecao de borda M30",lb_on=input{default=true,type=input.boolean}}
 local lb_m=media_range_s8
-local lb_sec=security(current_ticker_id,"15m")
+local lb_sec=security(current_ticker_id,"30m")
 local lb_hi=lb_sec and get_value(lb_sec.high[1],0)or 0
 local lb_lo=lb_sec and get_value(lb_sec.low[1],0)or 0
 local lb_top=get_value(highest(high[1],8),0)
@@ -326,9 +324,7 @@ and(pavio_superior_atual>=lb_m*.18 or(z2<=lb_m*.65 and lb_stall_c))
 local veto_borda_venda=lb_on and lb_m>0 and perna_baixa_curta and testa_borda_inferior
     and low<=lb_bot+lb_m*.18 and close>=lb_bot-lb_m*.10
 and(pavio_inferior_atual>=lb_m*.18 or(z2<=lb_m*.65 and lb_stall_v))
--- F20: evita terceira tentativa no mesmo lado de uma faixa sem progresso.
--- Usa somente velas passadas, faixa atual e sinais ja aceitos.
-input_group{"F20 - Freio de repeticao",f20_on=input{default=true,type=input.boolean}}
+input_group{"F21 - Freio de repeticao",f20_on=input{default=true,type=input.boolean}}
 local f20s=make_series()
 local f20n=make_series()
 local f20a=make_series()
@@ -338,7 +334,6 @@ local f20cont=get_value(f20n[1],0)
 local f20idade=get_value(f20a[1],20)+1
 local f20preco=get_value(f20p[1],get_value(close[1],close))
 local f20m=media_range_s8
--- Novo movimento so rearma com progresso ja FECHADO, sem olhar o futuro.
 local f20avancou=f20m>0 and((f20lado==1 and close[1]>f20preco+f20m*1.10)
     or(f20lado==-1 and close[1]<f20preco-f20m*1.10))
 if f20idade>10 or f20avancou then
@@ -347,15 +342,52 @@ end
 local f20briga=(ze>=2 and q20ov>=2)or(q20ov>=3 and q20eff<.34)
 local f20topo=lb_hi>0 and abs(close-lb_hi)<=f20m*.50
 local f20fundo=lb_lo>0 and abs(close-lb_lo)<=f20m*.50
+input_group{"F21 - DIRECAO",f202on=input{default=true,type=input.boolean},
+    f202lim=input{default="36",type=input.string}}
+-- F21: ler numeros das nove velas FECHADAS; nao usar series diretamente em IF.
+local f202c,f202v,f202r=0,0,0
+local f202historico_ok=true
+for k=1,9 do
+    local f202ck=get_value(close[k])
+    local f202ok_k=get_value(open[k])
+    local f202hk=get_value(high[k])
+    local f202lk=get_value(low[k])
+    if f202ck==nil or f202ok_k==nil or f202hk==nil or f202lk==nil then
+        f202historico_ok=false
+    else
+        if f202ck>f202ok_k then f202c=f202c+1
+        elseif f202ck<f202ok_k then f202v=f202v+1 end
+        f202r=f202r+max(0,f202hk-f202lk)
+    end
+end
+local f202ef=0
+if f202historico_ok and f202r>0 then
+    local f202c1=get_value(close[1],0)
+    local f202c9=get_value(close[9],0)
+    f202ef=abs(f202c1-f202c9)/f202r*100
+end
+local f202ok=f202on and f202historico_ok and f20m>0 and z4>0 and f202ef>=max(36,tonumber(f202lim)or 36)
+    and ze<=1 and z2>=f20m*.65 and z2/z4>=.60
+local f202mc=lb_hi>0 and(high<lb_hi-f20m*1.0 or
+    (close[1]>lb_hi+f20m*.65 and close[2]>lb_hi+f20m*.25))
+local f202mv=lb_lo>0 and(low>lb_lo+f20m*1.0 or
+    (close[1]<lb_lo-f20m*.65 and close[2]<lb_lo-f20m*.25))
+local f202buy=f202ok and f202c>=7 and f202mc
+    and close[1]>open[1] and close[2]>open[2] and close[3]>open[3]
+    and close>highest(high[1],8)+f20m*.20 and pavio_superior_atual<=f20m*.18
+local f202sell=f202ok and f202v>=7 and f202mv
+    and close[1]<open[1] and close[2]<open[2] and close[3]<open[3]
+    and close<lowest(low[1],8)-f20m*.20 and pavio_inferior_atual<=f20m*.18
 local f20vc=f20_on and f20m>0 and f20lado==1 and f20cont>=2 and f20idade<=10
     and close<=f20preco+f20m*.65 and(f20briga or f20topo)
+    and not(f202buy and not f20topo)
 local f20vv=f20_on and f20m>0 and f20lado==-1 and f20cont>=2 and f20idade<=10
     and close>=f20preco-f20m*.65 and(f20briga or f20fundo)
+    and not(f202sell and not f20fundo)
 sinal_compra=TA and(not z91)and(not veto_borda_compra)and(not f20vc)and z57 and(not z8f)and(not z5a)and(not z1e)
     and(z2>z3f*z74)and(not z40)and(not z5e)and(not z42)and(not z65)and(not z30)and(not z4e)
 sinal_venda=TB and(not z91)and(not veto_borda_venda)and(not f20vv)and z61 and(not z90)and(not z5a)and(not z1e)
     and(z2>z3f*z74)and(not z40)and(not z64)and(not z42)and(not z6e)and(not z36)and(not z55)
--- H DE DESCANSO/EXAUSTAO: vale somente na vela marcada
 input_group{"H PROTECAO",h1on=input{default=true,type=input.boolean}}
 local h1soma=0
 for k=2,21 do h1soma=h1soma+max(0,get_value(high[k],0)-get_value(low[k],0))end
@@ -393,7 +425,6 @@ local H_preco_ultimo=get_value(h1anc[1],h1c1)
 local H_recuo=get_value(h1re[1],0)
 if h1old==1 and h1c1<H_preco_ultimo-h1f*.85 then H_recuo=1 end
 if h1old==-1 and h1c1>H_preco_ultimo+h1f*.85 then H_recuo=1 end
--- Novo H permitido depois de duas velas fechadas de impulso renovado.
 local h1novoTop=h1old==1 and close[1]>open[1] and close[2]>open[2]
     and high[1]>H_preco_ultimo+h1f*.65 and close[1]>close[2]+h1f*.15
 local h1novoBot=h1old==-1 and close[1]<open[1] and close[2]<open[2]
@@ -422,7 +453,6 @@ if f9s1_d==0 and h1lado==0 and hv_dir==0 then
     if get_value(sinal_compra,false)then f9s1_d=1
     elseif get_value(sinal_venda,false)then f9s1_d=-1 end
 end
--- Memoriza uma tentativa por vela; H e HEAVY nao entram na contagem.
 if f9s1_d~=0 then
     if f20lado==f9s1_d then f20cont=f20cont+1 else f20cont=1 end
     f20lado=f9s1_d
@@ -443,7 +473,6 @@ plot_shape(conditional(sinal_compra),"F20_COMPRA",shape_style.arrowup,
 shape_size.large,call_color,shape_location.belowbar,0,"Compra","#fcfc04")
 plot_shape(conditional(sinal_venda),"F20_VENDA",shape_style.arrowdown,
 shape_size.large,put_color,shape_location.abovebar,0,"Venda","#fcfc01")
--- HEAVY MAIS SELETIVO: vela nao pode ter H ou seta normal
 input_group{"HEAVY",hv_on=input{default=true,type=input.boolean}}
 hv_m=media_range_s8
 hv_t=highest(high[1],8)
@@ -492,10 +521,16 @@ end
 hvS:set(z59);hvN:set(z3a);hvR:set(z3b)
 plot_shape(hv_dir==-1,"F20H_HEAVY_V",shape_style.diamond,shape_size.large,"#FF9800",shape_location.abovebar,0,"HEAVY","#FFFFFF")
 plot_shape(hv_dir==1,"F20H_HEAVY_C",shape_style.diamond,shape_size.large,"#00E5FF",shape_location.belowbar,0,"HEAVY","#FFFFFF")
--- LINHAS BRANCAS: niveis M15 ja fechados
-input_group{"Barras M15 fechadas",m15cor=input{default="#FFFFFF",type=input.color},m15larg=input{default=2,type=input.line_width}}
-local m15s=security(current_ticker_id,"15m")
-if m15s then
-    plot(m15s.high[1],"M15 Superior",m15cor,m15larg,0,style.levels,na_mode.continue)
-    plot(m15s.low[1],"M15 Inferior",m15cor,m15larg,0,style.levels,na_mode.continue)
+-- Suporte e resistencia do ultimo candle M30 FECHADO.
+-- O grafico operacional continua no tempo selecionado (ex.: M1).
+input_group{
+    "Barras M30 - Suporte/Resistencia",
+    m30_res_cor=input{default="#FF0000",type=input.color},
+    m30_sup_cor=input{default="#00FF00",type=input.color},
+    m30_larg=input{default=2,type=input.line_width}
+}
+local m30_barras=security(current_ticker_id,"30m")
+if m30_barras then
+    plot(m30_barras.high[1],"M30 Resistencia",m30_res_cor,m30_larg,0,style.levels,na_mode.continue)
+    plot(m30_barras.low[1],"M30 Suporte",m30_sup_cor,m30_larg,0,style.levels,na_mode.continue)
 end

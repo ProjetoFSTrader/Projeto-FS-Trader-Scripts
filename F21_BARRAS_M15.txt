@@ -1,6 +1,6 @@
--- FS TRADER F21 M30 | F21 PESSOAL + BARRAS E PROTECAO M30 | TESTE
--- Corrigido modulo F20.2: apenas valores escalares de velas fechadas em IF.
-instrument{name="F21 M30 | FÁBIO SANTIAGO | 99 99195-0983",icon="jpg",overlay=true}
+-- F21 BARRAS M15 | FS TRADER | Dev. Fábio Santiago | 99 99195-0983
+-- Motor pessoal com leitura historica e barras M15 fechadas.
+instrument{name="F21 BARRAS M15 | Dev. Fábio Santiago | 99 99195-0983",icon="jpg",overlay=true}
 input_group{
     "Compra",
     comprar_color=input{default="green",type=input.color}
@@ -303,9 +303,9 @@ q20ws=conditional(q20w)
 q20p=q20w or get_value(q20ws[1],false)or get_value(q20ws[2],false)
 q20imp=z83 and(z15 or z11)
 z91=br20on and(q20b or q20p or q20imp)
-input_group{"LAB borda M30",lb_on=input{default=true,type=input.boolean}}
+input_group{"Protecao de borda M15",lb_on=input{default=true,type=input.boolean}}
 local lb_m=media_range_s8
-local lb_sec=security(current_ticker_id,"30m")
+local lb_sec=security(current_ticker_id,"15m")
 local lb_hi=lb_sec and get_value(lb_sec.high[1],0)or 0
 local lb_lo=lb_sec and get_value(lb_sec.low[1],0)or 0
 local lb_top=get_value(highest(high[1],8),0)
@@ -324,7 +324,7 @@ and(pavio_superior_atual>=lb_m*.18 or(z2<=lb_m*.65 and lb_stall_c))
 local veto_borda_venda=lb_on and lb_m>0 and perna_baixa_curta and testa_borda_inferior
     and low<=lb_bot+lb_m*.18 and close>=lb_bot-lb_m*.10
 and(pavio_inferior_atual>=lb_m*.18 or(z2<=lb_m*.65 and lb_stall_v))
-input_group{"F20 - Freio de repeticao",f20_on=input{default=true,type=input.boolean}}
+input_group{"F21 - Freio de repeticao",f20_on=input{default=true,type=input.boolean}}
 local f20s=make_series()
 local f20n=make_series()
 local f20a=make_series()
@@ -342,7 +342,7 @@ end
 local f20briga=(ze>=2 and q20ov>=2)or(q20ov>=3 and q20eff<.34)
 local f20topo=lb_hi>0 and abs(close-lb_hi)<=f20m*.50
 local f20fundo=lb_lo>0 and abs(close-lb_lo)<=f20m*.50
-input_group{"F20.2 - DIRECAO",f202on=input{default=true,type=input.boolean},
+input_group{"F21 - DIRECAO",f202on=input{default=true,type=input.boolean},
     f202lim=input{default="36",type=input.string}}
 -- F21: ler numeros das nove velas FECHADAS; nao usar series diretamente em IF.
 local f202c,f202v,f202r=0,0,0
@@ -521,16 +521,9 @@ end
 hvS:set(z59);hvN:set(z3a);hvR:set(z3b)
 plot_shape(hv_dir==-1,"F20H_HEAVY_V",shape_style.diamond,shape_size.large,"#FF9800",shape_location.abovebar,0,"HEAVY","#FFFFFF")
 plot_shape(hv_dir==1,"F20H_HEAVY_C",shape_style.diamond,shape_size.large,"#00E5FF",shape_location.belowbar,0,"HEAVY","#FFFFFF")
--- Suporte e resistencia do ultimo candle M30 FECHADO.
--- O grafico operacional continua no tempo selecionado (ex.: M1).
-input_group{
-    "Barras M30 - Suporte/Resistencia",
-    m30_res_cor=input{default="#FF0000",type=input.color},
-    m30_sup_cor=input{default="#00FF00",type=input.color},
-    m30_larg=input{default=2,type=input.line_width}
-}
-local m30_barras=security(current_ticker_id,"30m")
-if m30_barras then
-    plot(m30_barras.high[1],"M30 Resistencia",m30_res_cor,m30_larg,0,style.levels,na_mode.continue)
-    plot(m30_barras.low[1],"M30 Suporte",m30_sup_cor,m30_larg,0,style.levels,na_mode.continue)
+input_group{"Barras M15 fechadas",m15cor=input{default="#FFFFFF",type=input.color},m15larg=input{default=2,type=input.line_width}}
+local m15s=security(current_ticker_id,"15m")
+if m15s then
+    plot(m15s.high[1],"M15 Superior",m15cor,m15larg,0,style.levels,na_mode.continue)
+    plot(m15s.low[1],"M15 Inferior",m15cor,m15larg,0,style.levels,na_mode.continue)
 end

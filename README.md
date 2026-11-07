@@ -29,14 +29,14 @@ Abaixo estão **sete artes com capturas reais da plataforma Exnova**, com as vel
 
 ## 🧩 Scripts disponíveis
 
-| Arquivo | Descrição | Situação |
-| --- | --- | --- |
-| [S20_ALUNOS.txt](S20_ALUNOS.txt) | Versão F20 de referência, mais seletiva, utilizada na proposta educacional do projeto. | Preservada |
-| [F21_VERSAO_PESSOAL.txt](F21_VERSAO_PESSOAL.txt) | Variante pessoal de maior frequência de sinalização. | Preservada |
-| [F9_BRUTO_PIONEIRO.txt](F9_BRUTO_PIONEIRO.txt) | Versão pioneira original, guardada para referência e estudo. | Preservada |
-| [F20_M30_PROTECAO_TESTE.txt](F20_M30_PROTECAO_TESTE.txt) | Experimento F20 com suporte/resistência do último M30 fechado, resistência vermelha, suporte verde e referência M30 nas proteções de borda e repetição. | **Experimental: validar em DEMO** |
+| Arquivo | Finalidade |
+| --- | --- |
+| [F20.txt](F20.txt) | **F20**: versão dos alunos, com H, HEAVY e barras M15. |
+| [F21_BARRAS_M15.txt](F21_BARRAS_M15.txt) | **F21 BARRAS M15**: versão pessoal, com leitura adicional de direção e proteções preservadas. |
+| [F21_BARRAS_M30.txt](F21_BARRAS_M30.txt) | **F21 BARRAS M30**: mesma base do F21, com suporte e resistência do M30 fechado, também utilizados nas proteções de borda. |
+| [F22_REVERSAO.txt](F22_REVERSAO.txt) | **F22 REVERSÃO**: versão com REV baseado em RSI e leitura de reação do preço, além das barras M30. |
 
-**Importante:** o F20 M30 é um arquivo independente. Os scripts de referência não foram substituídos ou modificados.
+**Desenvolvedor:** Dev. Fábio Santiago | 99 99195-0983
 
 ## 🔎 Linhas de estudo
 

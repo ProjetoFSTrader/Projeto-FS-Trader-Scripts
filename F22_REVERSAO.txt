@@ -1,0 +1,564 @@
+-- F22 REVERSAO | FS TRADER | Dev. Fábio Santiago | 99 99195-0983
+instrument{name="F22 REVERSAO | Dev. Fábio Santiago | 99 99195-0983",icon="jpg",overlay=true}
+input_group{
+"Compra",
+comprar_color=input{default="green",type=input.color}
+}
+input_group{
+"Periodo Max/Min",
+cv15=input{default="10",type=input.string}
+}
+input_group{
+"Periodo da Micro Tendencia",
+cv98=input{default="10",type=input.string}
+}
+input_group{
+"Venda",
+vender_color=input{default="#fcf805",type=input.color}
+}
+input_group{
+"Candles",
+cv99=input{default="#00FF20",type=input.color},
+cv97=input{default="#FF1010",type=input.color},
+neutro=input{default="#787b86",type=input.color},
+}
+input_group{
+"Canal (Resistencia/Suporte)",
+upline_color=input{default="#FF8C00",type=input.color},
+lowline_color=input{default="#00FF66",type=input.color}
+}
+EMAA=ema(close,cv98)
+upper=highest(high,cv15)
+lower=lowest(low,cv15)
+TA=((close>close[1])and(close>EMAA)and(EMAA>EMAA[1]))
+TB=((close<close[1])and(close<EMAA)and(EMAA<EMAA[1]))
+input_group{
+"Qualidade Fixa do Sinal",
+cv43=input{default="35",type=input.string},
+cv47=input{default="45",type=input.string},
+cv33=input{default="60",type=input.string},
+sinal_fraco_color=input{default="#D500F9",type=input.color}
+}
+z2=abs(close-open)
+z4=high-low
+z68=high[1]-low[1]
+z69=high[2]-low[2]
+z6a=high[3]-low[3]
+z6b=high[4]-low[4]
+z6c=high[5]-low[5]
+z5=z68+z69+z6a+z6b+z6c
+z3=z5/5
+z27=abs(close[1]-close[5])
+z23=(z5>0)and(z27/z5*100)or 100
+z28=z23<tonumber(cv43)
+z31=(z4>0)and(z2/z4*100)or 100
+zd=(z31<tonumber(cv47))
+and(z3>0)
+and(z2<z3*tonumber(cv33)/100)
+z6d=z28 and zd
+sec=security(current_ticker_id,"1m")
+if sec then
+local cv67
+if close>=open then
+cv67=cv99
+else
+cv67=cv97
+end
+plot_candle(open,high,low,close,"ES",cv67)
+end
+input_group{"CALL - UP COLOR",cv77=input{default="#fcfc04",type=input.color}}
+input_group{"PUT - DOWN COLOR",cv85=input{default="#fcfc01",type=input.color}}
+z6=high[1]-low[1]
+z1a=high[2]-low[2]
+z1b=high[3]-low[3]
+z29=high[4]-low[4]
+z2a=high[5]-low[5]
+z7e=high[6]-low[6]
+z7f=high[7]-low[7]
+z43=(z4+z6+z1a+z1b)/4
+z8c=high[8]-low[8]
+z8d=high[9]-low[9]
+z96=high[10]-low[10]
+z97=high[11]-low[11]
+z98=high[12]-low[12]
+z99=high[13]-low[13]
+z9a=high[14]-low[14]
+z3f=(z4+z6+z1a+z1b+z29+z2a+z7e+z7f+z8c+z8d+z96+z97+z98+z99+z9a)/15
+input_group{
+"Lateralizacao e Forca Minima",
+cv50=input{default="12",type=input.string},
+cv83=input{default="20",type=input.string}
+}
+z4f=abs(close-close[7])
+z32=z4+z6+z1a+z1b+z29+z2a+z7e+z7f
+z70=(z32>0)and(z4f/z32*100)or 100
+z5a=z70<tonumber(cv50)
+z8b=z70<6
+z74=tonumber(cv83)/100
+input_group{
+"Lateralizacao rapida (janela curta, pega caixotinho cedo)",
+cv25=input{default="8",type=input.string}
+}
+z2b=abs(close-close[3])
+z10=z4+z6+z1a+z1b
+z5c=(z10>0)and(z2b/z10*100)or 100
+z1e=z5c<tonumber(cv25)
+z67=zd
+input_group{
+"Exaustao de perna (limiar em multiplos do range medio)",
+cv48=input{default="25",type=input.string}
+}
+z62=abs(close-close[15])
+z40=(z43>0)and(z62>z43*tonumber(cv48))or false
+input_group{
+"Freio pos-impulso S6 (apenas 1 vela)",
+cv23=input{default="120",type=input.string},
+cv7=input{default="55",type=input.string},
+cv21=input{default="25",type=input.string},
+cv20=input{default="20",type=input.string},
+cv19=input{default="0",type=input.string}
+}
+z1=(z1a+z1b+z29+z2a+z7e+z7f+z8c+z8d)/8
+z1c=abs(close[1]-open[1])
+z44=(z6>0)and(z1c/z6*100)or 0
+z14=z1*tonumber(cv23)/100
+z15=(z1>0)and
+(close[1]>open[1])and
+(z6>=z14)and
+(z44>=tonumber(cv7))
+z11=(z1>0)and
+(close[1]<open[1])and
+(z6>=z14)and
+(z44>=tonumber(cv7))
+z2c=highest(high[1],cv15)
+z24=lowest(low[1],cv15)
+z1f=z1*tonumber(cv21)/100
+z63=(z2c-high[1])<=z1f
+z5d=(low[1]-z24)<=z1f
+z2d=z1*tonumber(cv19)/100
+z33=z1*tonumber(cv20)/100
+z34=(close>z2c+z2d)and
+(close>open)and(z2>=z33)
+z3c=(close<z24-z2d)and
+(close<open)and(z2>=z33)
+z5e=z15 and z63 and(not z34)
+z64=z11 and z5d and(not z3c)
+input_group{
+"Aviso de Extremo (somente recolore para lilas)",
+cv17=input{default="35",type=input.string},
+cv28=input{default="30",type=input.string},
+cv30=input{default="85",type=input.string}
+}
+cv5=high-max(open,close)
+cv6=min(open,close)-low
+zb=(z4>0)and(cv5/z4*100)or 0
+zc=(z4>0)and(cv6/z4*100)or 0
+z41=z43*tonumber(cv28)/100
+z7=(upper-high)<=z41
+z18=(low-lower)<=z41
+z1d=(z3>0)and
+(z2<=z3*tonumber(cv30)/100)
+z7d=z7 and z1d and
+(zb>=tonumber(cv17))
+z80=z18 and z1d and
+(zc>=tonumber(cv17))
+input_group{
+"S6 - Transicao de Regime",
+cv14=input{default="30",type=input.string},
+cv26=input{default="4",type=input.string}
+}
+za=(close[1]>EMAA[1])and(EMAA[1]>=EMAA[2])
+z9=(close[1]<EMAA[1])and(EMAA[1]<=EMAA[2])
+za2=abs(close[1]-open[1])
+z19=high[1]-low[1]
+z50=high[1]-max(open[1],close[1])
+z51=min(open[1],close[1])-low[1]
+z12=(z19>0)and(z50/z19*100)or 0
+z13=(z19>0)and(z51/z19*100)or 0
+z45=
+((close[1]>open[1])or(z13>=tonumber(cv14)))and
+((low[1]>=low[2])or(close[1]>close[2]))
+z3d=
+((close[1]<open[1])or(z12>=tonumber(cv14)))and
+((high[1]<=high[2])or(close[1]<close[2]))
+z84=(z6+z1a+z1b+z29+z2a)/5
+z5b=z84*tonumber(cv26)/100
+z75=max(high[1],high[2])
+z71=min(low[1],low[2])
+z20=
+z9 and z45 and
+(close>=z71-z5b)
+z21=
+za and z3d and
+(close<=z75+z5b)
+z76=z20
+z73=z21
+input_group{
+"S8 - Ajuste fino de fluxo",
+cv29=input{default="18",type=input.string},
+cv55=input{default="4.5",type=input.string},
+cv52=input{default="70",type=input.string},
+cv22=input{default="30",type=input.string}
+}
+dir_1=(close[1]>open[1])and 1 or((close[1]<open[1])and-1 or 0)
+dir_2=(close[2]>open[2])and 1 or((close[2]<open[2])and-1 or 0)
+dir_3=(close[3]>open[3])and 1 or((close[3]<open[3])and-1 or 0)
+dir_4=(close[4]>open[4])and 1 or((close[4]<open[4])and-1 or 0)
+dir_5=(close[5]>open[5])and 1 or((close[5]<open[5])and-1 or 0)
+z9b=(dir_1~=0)and(dir_2~=0)and(dir_1~=dir_2)and 1 or 0
+z9c=(dir_2~=0)and(dir_3~=0)and(dir_2~=dir_3)and 1 or 0
+z9d=(dir_3~=0)and(dir_4~=0)and(dir_3~=dir_4)and 1 or 0
+z9e=(dir_4~=0)and(dir_5~=0)and(dir_4~=dir_5)and 1 or 0
+ze=z9b+z9c+z9d+z9e
+z25=z4+z6+z1a+z1b+z29+z2a
+z52=abs(close-close[5])
+z4a=(z25>0)and(z52/z25*100)or 100
+z42=(ze>=3)and
+(z4a<tonumber(cv29))
+cv1=(z6+z1a+z1b+z29+z2a)/5
+z77=abs(close-close[5])
+zf=(cv1>0)and
+(z77>=cv1*tonumber(cv55))
+z78=(cv1>0)and(z2/cv1*100)or 100
+z35=z78<tonumber(cv52)
+z26=zb>=tonumber(cv22)
+z2e=zc>=tonumber(cv22)
+z65=zf and z7 and
+(z35 or z26)
+z6e=zf and z18 and
+(z35 or z2e)
+z4b=za and zf and z7
+z46=z9 and zf and z18
+z53=(close[1]<=close[2]+cv1*0.18)or z26
+z4c=(close[1]>=close[2]-cv1*0.18)or z2e
+z47=close>high[1]and close>open and z2>cv1*0.40
+z3e=close<low[1]and close<open and z2>cv1*0.40
+z30=z4b and z53 and(not z47)
+z36=z46 and z4c and(not z3e)
+z8=cv1*0.30
+z37=highest(high[1],cv15)
+z2f=lowest(low[1],cv15)
+z5f=((z37-high[1])<=z8)and((z37-high[2])<=z8)
+z54=((low[1]-z2f)<=z8)and((low[2]-z2f)<=z8)
+z4d=close[1]<=close[2]+cv1*0.18
+z48=close[1]>=close[2]-cv1*0.18
+z6f=close>high[1]and close>open and z2>cv1*0.40
+z66=close<low[1]and close<open and z2>cv1*0.40
+z4e=za and z7 and z5f and z4d and(not z6f)
+z55=z9 and z18 and z54 and z48 and(not z66)
+z56=close[1]<open[1]and close[1]<close[2]and
+(EMAA[1]>=EMAA[2]or EMAA[2]>=EMAA[3])and
+abs(close[1]-open[1])>z3*0.30
+z60=close[1]>open[1]and close[1]>close[2]and
+(EMAA[1]<=EMAA[2]or EMAA[2]<=EMAA[3])and
+abs(close[1]-open[1])>z3*0.30
+z57=not z56 or(close>high[1]and close>open)
+z61=not z60 or(close<low[1]and close<open)
+r5_top=highest(high[2],cv15)
+r5_bot=lowest(low[2],cv15)
+z22=cv1
+z8e=z22*0.30
+r5_rej=z22*0.10
+z81=z22>0 and high[1]>=r5_top-z8e and
+close[1]<r5_top-r5_rej and
+(close[1]<open[1]or z12>=35)
+z82=z22>0 and low[1]<=r5_bot+z8e and
+close[1]>r5_bot+r5_rej and
+(close[1]>open[1]or z13>=35)
+r5_s=make_series()
+r5_n=make_series()
+r5_d=get_value(r5_s[1],0)
+r5_lim=get_value(r5_n[1],get_value(close[1],close))
+if r5_d==0 then
+if z81 then r5_d=1;r5_lim=max(r5_top,high[1])
+elseif z82 then r5_d=-1;r5_lim=min(r5_bot,low[1])end
+end
+z85=r5_d==1 and close>r5_lim+z22*0.15 and
+close>open and z2>z22*0.40
+z86=r5_d==-1 and close<r5_lim-z22*0.15 and
+close<open and z2>z22*0.40
+z87=r5_d==1 and close[1]<r5_lim-z22*2 and EMAA[1]<EMAA[2]
+z88=r5_d==-1 and close[1]>r5_lim+z22*2 and EMAA[1]>EMAA[2]
+if z85 or z86 or z87 or z88 then r5_d=0 end
+r5_s:set(r5_d)
+r5_n:set(r5_lim)
+z8f=r5_d==1
+z90=r5_d==-1
+input_group{"FREIO BRIGA REAL",br20on=input{default=true,type=input.boolean}}
+q20sum=z6+z1a+z1b+z29+z2a
+q20eff=q20sum>0 and abs(close[1]-close[5])/q20sum or 1
+q20ov=0
+for k=1,4 do
+local qra=get_value(high[k],0)-get_value(low[k],0)
+local qrb=get_value(high[k+1],0)-get_value(low[k+1],0)
+local qr=min(qra,qrb)
+if qr>0 and max(0,min(get_value(high[k],0),get_value(high[k+1],0))-max(get_value(low[k],0),get_value(low[k+1],0)))>qr*.55 then q20ov=q20ov+1 end
+end
+q20b=(ze>=3 and q20eff<.23 and q20ov>=3)or(ze>=2 and q20eff<.10 and q20ov>=4)
+q20bs=conditional(q20b)
+z83=get_value(q20bs[1],false)
+q20w=z83 and z1>0 and z6>=z1*1.60 and z44>=65
+q20ws=conditional(q20w)
+q20p=q20w or get_value(q20ws[1],false)or get_value(q20ws[2],false)
+q20imp=z83 and(z15 or z11)
+z91=br20on and(q20b or q20p or q20imp)
+input_group{"Protecao de borda M30",lb_on=input{default=true,type=input.boolean}}
+local lb_m=cv1
+local lb_sec=security(current_ticker_id,"30m")
+local lb_hi=lb_sec and get_value(lb_sec.high[1],0)or 0
+local lb_lo=lb_sec and get_value(lb_sec.low[1],0)or 0
+local lb_top=get_value(highest(high[1],8),0)
+local lb_bot=get_value(lowest(low[1],8),0)
+local cv63=(close[1]>open[1]and close[2]>open[2])or(close[2]>open[2]and close[3]>open[3])
+local cv56=(close[1]<open[1]and close[2]<open[2])or(close[2]<open[2]and close[3]<open[3])
+local cv79=close[1]<=close[2]+lb_m*.10
+local cv78=close[1]>=close[2]-lb_m*.10
+local cv46=(lb_hi>0 and abs(high-lb_hi)<=lb_m*.28)
+or(high[1]>=lb_top-lb_m*.17 and high[2]>=lb_top-lb_m*.17 and cv79)
+local cv44=(lb_lo>0 and abs(low-lb_lo)<=lb_m*.28)
+or(low[1]<=lb_bot+lb_m*.17 and low[2]<=lb_bot+lb_m*.17 and cv78)
+local cv54=lb_on and lb_m>0 and cv63 and cv46
+and high>=lb_top-lb_m*.18 and close<=lb_top+lb_m*.10
+and(cv5>=lb_m*.18 or(z2<=lb_m*.65 and cv79))
+local cv61=lb_on and lb_m>0 and cv56 and cv44
+and low<=lb_bot+lb_m*.18 and close>=lb_bot-lb_m*.10
+and(cv6>=lb_m*.18 or(z2<=lb_m*.65 and cv78))
+input_group{"F22 - Freio de repeticao",f20_on=input{default=true,type=input.boolean}}
+local f20s=make_series()
+local f20n=make_series()
+local f20a=make_series()
+local f20p=make_series()
+local f20lado=get_value(f20s[1],0)
+local f20cont=get_value(f20n[1],0)
+local cv40=get_value(f20a[1],20)+1
+local cv38=get_value(f20p[1],get_value(close[1],close))
+local f20m=cv1
+local cv94=f20m>0 and((f20lado==1 and close[1]>cv38+f20m*1.10)
+or(f20lado==-1 and close[1]<cv38-f20m*1.10))
+if cv40>10 or cv94 then
+f20lado=0;f20cont=0;cv40=20
+end
+local cv92=(ze>=2 and q20ov>=2)or(q20ov>=3 and q20eff<.34)
+local f20topo=lb_hi>0 and abs(close-lb_hi)<=f20m*.50
+local cv91=lb_lo>0 and abs(close-lb_lo)<=f20m*.50
+input_group{"F22 - DIRECAO",f202on=input{default=true,type=input.boolean},
+f202lim=input{default="36",type=input.string}}
+local f202c,f202v,f202r=0,0,0
+local cv18=true
+for k=1,9 do
+local f202ck=get_value(close[k])
+local cv82=get_value(open[k])
+local f202hk=get_value(high[k])
+local f202lk=get_value(low[k])
+if f202ck==nil or cv82==nil or f202hk==nil or f202lk==nil then
+cv18=false
+else
+if f202ck>cv82 then f202c=f202c+1
+elseif f202ck<cv82 then f202v=f202v+1 end
+f202r=f202r+max(0,f202hk-f202lk)
+end
+end
+local f202ef=0
+if cv18 and f202r>0 then
+local f202c1=get_value(close[1],0)
+local f202c9=get_value(close[9],0)
+f202ef=abs(f202c1-f202c9)/f202r*100
+end
+local f202ok=f202on and cv18 and f20m>0 and z4>0 and f202ef>=max(36,tonumber(f202lim)or 36)
+and ze<=1 and z2>=f20m*.65 and z2/z4>=.60
+local f202mc=lb_hi>0 and(high<lb_hi-f20m*1.0 or
+(close[1]>lb_hi+f20m*.65 and close[2]>lb_hi+f20m*.25))
+local f202mv=lb_lo>0 and(low>lb_lo+f20m*1.0 or
+(close[1]<lb_lo-f20m*.65 and close[2]<lb_lo-f20m*.25))
+local f202buy=f202ok and f202c>=7 and f202mc
+and close[1]>open[1]and close[2]>open[2]and close[3]>open[3]
+and close>highest(high[1],8)+f20m*.20 and cv5<=f20m*.18
+local cv100=f202ok and f202v>=7 and f202mv
+and close[1]<open[1]and close[2]<open[2]and close[3]<open[3]
+and close<lowest(low[1],8)-f20m*.20 and cv6<=f20m*.18
+local f20vc=f20_on and f20m>0 and f20lado==1 and f20cont>=2 and cv40<=10
+and close<=cv38+f20m*.65 and(cv92 or f20topo)
+and not(f202buy and not f20topo)
+local f20vv=f20_on and f20m>0 and f20lado==-1 and f20cont>=2 and cv40<=10
+and close>=cv38-f20m*.65 and(cv92 or cv91)
+and not(cv100 and not cv91)
+sinal_compra=TA and(not z91)and(not cv54)and(not f20vc)and z57 and(not z8f)and(not z5a)and(not z1e)
+and(z2>z3f*z74)and(not z40)and(not z5e)and(not z42)and(not z65)and(not z30)and(not z4e)
+sinal_venda=TB and(not z91)and(not cv61)and(not f20vv)and z61 and(not z90)and(not z5a)and(not z1e)
+and(z2>z3f*z74)and(not z40)and(not z64)and(not z42)and(not z6e)and(not z36)and(not z55)
+input_group{"H PROTECAO",h1on=input{default=true,type=input.boolean}}
+local h1soma=0
+for k=2,21 do h1soma=h1soma+max(0,get_value(high[k],0)-get_value(low[k],0))end
+local h1f=h1soma/20
+local h1o=get_value(open,0)
+local h1c=get_value(close,0)
+local h1hi=get_value(high,0)
+local h1lo=get_value(low,0)
+local h1c1=get_value(close[1],0)
+local h1ema1=get_value(EMAA[1],0)
+local h1up=get_value(highest(high[1],12),0)
+local h1dn=get_value(lowest(low[1],12),0)
+local h1r=max(0,h1hi-h1lo)
+local h1s=h1hi-max(h1o,h1c)
+local h1i=min(h1o,h1c)-h1lo
+local h1ta=h1f>0 and h1c1>h1ema1 and h1ema1>=get_value(EMAA[4],0)and h1c1-get_value(close[8],h1c1)>=h1f*1.6
+local h1tb=h1f>0 and h1c1<h1ema1 and h1ema1<=get_value(EMAA[4],0)and get_value(close[8],h1c1)-h1c1>=h1f*1.6
+local cv73=h1r>0 and h1s>=h1r*.30 and h1s>=h1f*.20 and h1c<=h1hi-h1f*.20
+local cv70=h1r>0 and h1i>=h1r*.30 and h1i>=h1f*.20 and h1c>=h1lo+h1f*.20
+local cv87=h1hi>h1up+h1f*.10 and h1c<=h1up-h1f*.02
+local cv81=h1lo<h1dn-h1f*.10 and h1c>=h1dn+h1f*.02
+local h4a=h1ta and close[1]>open[1]and close[2]>open[2]and close[3]>open[3]and close[4]>open[4]
+local h4b=h1tb and close[1]<open[1]and close[2]<open[2]and close[3]<open[3]and close[4]<open[4]
+local h4p=high[1]-max(open[1],close[1])
+local h4q=min(open[1],close[1])-low[1]
+local h4top=h4a and h1hi>=h1up-h1f*.25 and(h4p>=z6*.24 or z1c<=h1f*.70)and h1c<=h1c1-h1f*.12
+local h4bot=h4b and h1lo<=h1dn+h1f*.25 and(h4q>=z6*.24 or z1c<=h1f*.70)and h1c>=h1c1+h1f*.12
+local h1top=(h1ta and h1hi>=h1up-h1f*.25 and(cv73 or cv87))or h4top
+local h1bot=(h1tb and h1lo<=h1dn+h1f*.25 and(cv70 or cv81))or h4bot
+local h1mem=make_series()
+local h1anc=make_series()
+local h1re=make_series()
+local h1old=get_value(h1mem[1],0)
+local cv3=get_value(h1anc[1],h1c1)
+local H_recuo=get_value(h1re[1],0)
+if h1old==1 and h1c1<cv3-h1f*.85 then H_recuo=1 end
+if h1old==-1 and h1c1>cv3+h1f*.85 then H_recuo=1 end
+local cv95=h1old==1 and close[1]>open[1]and close[2]>open[2]
+and high[1]>cv3+h1f*.65 and close[1]>close[2]+h1f*.15
+local cv96=h1old==-1 and close[1]<open[1]and close[2]<open[2]
+and low[1]<cv3-h1f*.65 and close[1]<close[2]-h1f*.15
+local cv69=h1top and(h1old~=1 or h1hi>cv3+h1f*1.25
+or cv95 or(H_recuo==1 and h1hi>=cv3-h1f*.15))
+local cv59=h1bot and(h1old~=-1 or h1lo<cv3-h1f*1.25
+or cv96 or(H_recuo==1 and h1lo<=cv3+h1f*.15))
+f9s1_t=get_value(open_time,0)
+if f9s1_b~=f9s1_t then f9s1_b=f9s1_t;f9s1_d=0 end
+if h1bar~=f9s1_t then h1bar=f9s1_t;h1lado=0 end
+if h1on and h1lado==0 and f9s1_d==0 then
+if cv69 and not cv59 then h1lado=1
+elseif cv59 and not cv69 then h1lado=-1 end
+end
+if h1lado~=0 then
+h1old=h1lado
+cv3=h1lado==1 and h1hi or h1lo
+H_recuo=0
+end
+h1mem:set(h1old)
+h1anc:set(cv3)
+h1re:set(H_recuo)
+if f9s1_d==0 and h1lado==0 then
+if get_value(sinal_compra,false)then f9s1_d=1
+elseif get_value(sinal_venda,false)then f9s1_d=-1 end
+end
+if f9s1_d~=0 then
+if f20lado==f9s1_d then f20cont=f20cont+1 else f20cont=1 end
+f20lado=f9s1_d
+cv38=close
+cv40=0
+end
+f20s:set(f20lado)
+f20n:set(f20cont)
+f20a:set(cv40)
+f20p:set(cv38)
+sinal_compra=f9s1_d==1 and h1lado==0
+sinal_venda=f9s1_d==-1 and h1lado==0
+plot_shape(h1lado==1,"F20_H_TOPO",shape_style.arrowdown,shape_size.large,"#FF9800",shape_location.abovebar,0,"H","#FFFFFF")
+plot_shape(h1lado==-1,"F20_H_FUNDO",shape_style.arrowup,shape_size.large,"#00E5FF",shape_location.belowbar,0,"H","#FFFFFF")
+input_group{"UP - UP COLOR",cv77=input{default="#0bd104",type=input.color}}
+input_group{"DOWN - DOWN COLOR",cv85=input{default="#f70202",type=input.color}}
+plot_shape(conditional(sinal_compra),"F20_COMPRA",shape_style.arrowup,
+shape_size.large,cv77,shape_location.belowbar,0,"Compra","#fcfc04")
+plot_shape(conditional(sinal_venda),"F20_VENDA",shape_style.arrowdown,
+shape_size.large,cv85,shape_location.abovebar,0,"Venda","#fcfc01")
+input_group{
+"F22 REV - RSI",
+cv90=input(7,"Periodo RSI",input.integer,2,30),
+cv11=input(75,"RSI Topo - REV Venda",input.integer,50,95),
+cv8=input(25,"RSI Fundo - REV Compra",input.integer,5,50)
+}
+input_group{
+"F22 REV - Reacao e cores",
+cv12=input{default=true,type=input.boolean},
+cv60=input{default="2",type=input.string},
+cv49=input{default="30",type=input.string},
+cv41=input{default="3",type=input.string},
+cv74=input{default="#00E5FF",type=input.color},
+cv80=input{default="#FF9800",type=input.color}
+}
+local cv51=rsi(close,cv90)
+local cv13=get_value(cv51)
+local cv2=get_value(cv51[1])
+local cv9=(cv13~=nil)and(cv2~=nil)
+local cv16=cv1
+local cv53=abs(close-open)
+local cv86=high-low
+local cv65=tonumber(cv60)or 2
+local cv31=tonumber(cv49)or 30
+local cv39=tonumber(cv41)or 3
+cv65=max(0,cv65)
+cv31=max(10,cv31)
+cv39=max(0,cv39)
+local cv76=cv9 and cv2<=cv8+3
+and cv13>=cv2+cv65
+local cv84=cv9 and cv2>=cv11-3
+and cv13<=cv2-cv65
+local cv32=cv16>0 and cv53>=cv16*cv31/100
+and cv86>0 and cv53/cv86>=.43
+local cv62=cv32 and close>open and close>close[1]
+local cv68=cv32 and close<open and close<close[1]
+local cv71=cv16>0 and close[1]<close[4]-cv16*1.65
+and close[1]<open[1]and close[2]<open[2]and close[3]<open[3]
+local cv72=cv16>0 and close[1]>close[4]+cv16*1.65
+and close[1]>open[1]and close[2]>open[2]and close[3]>open[3]
+local cv37=(not cv71)or
+(cv53>=cv16*.55 and close>=open[1])or close>high[1]
+local cv42=(not cv72)or
+(cv53>=cv16*.55 and close<=open[1])or close<low[1]
+local cv34=cv76 and cv62 and cv37
+local cv45=cv84 and cv68 and cv42
+local cv66=cv9 and cv2>=cv8
+and cv13<cv8
+local cv75=cv9 and cv2<=cv11
+and cv13>cv11
+local cv58=cv9 and(cv66 or
+(cv2<cv8 and close>open))
+local cv64=cv9 and(cv75 or
+(cv2>cv11 and close<open))
+local cv24=cv12 and cv34 or
+((not cv12)and cv58)
+local cv36=cv12 and cv45 or
+((not cv12)and cv64)
+local cv27=make_series()
+local cv35=make_series()
+local cv4=get_value(cv27[1],0)
+local cv10=get_value(cv35[1],100)+1
+if cv24 and cv4==1 and cv10<=cv39 then
+cv24=false
+end
+if cv36 and cv4==-1 and cv10<=cv39 then
+cv36=false
+end
+if cv24 and not cv36 then
+cv4=1
+cv10=0
+elseif cv36 and not cv24 then
+cv4=-1
+cv10=0
+end
+cv27:set(cv4)
+cv35:set(cv10)
+plot_shape(conditional(cv24),"F22_REV_COMPRA",shape_style.diamond,
+shape_size.large,cv74,shape_location.belowbar,0,"REV","#FFFFFF")
+plot_shape(conditional(cv36),"F22_REV_VENDA",shape_style.diamond,
+shape_size.large,cv80,shape_location.abovebar,0,"REV","#FFFFFF")
+input_group{
+"Barras M30 fechadas - Suporte/Resistencia",
+cv88=input{default="#FF0000",type=input.color},
+cv89=input{default="#00FF00",type=input.color},
+cv93=input{default=2,type=input.line_width}
+}
+local cv57=security(current_ticker_id,"30m")
+if cv57 then
+plot(cv57.high[1],"M30 Resistencia",cv88,cv93,0,style.levels,na_mode.continue)
+plot(cv57.low[1],"M30 Suporte",cv89,cv93,0,style.levels,na_mode.continue)
+end
