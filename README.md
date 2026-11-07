@@ -32,7 +32,6 @@ Abaixo estão **sete artes com capturas reais da plataforma Exnova**, com as vel
 | Arquivo | Finalidade |
 | --- | --- |
 | [F20_BARRAS_M30.txt](F20_BARRAS_M30.txt) | **F20 BARRAS M30**: versão adicional com M30 visível e proteção complementar M15 oculta. |
-| [F22_REVERSAO.txt](F22_REVERSAO.txt) | **F22 REVERSÃO**: RSI/REV com proteção seletiva M15 oculta e barras M30 visíveis. |
 
 **Desenvolvedor:** Dev. Fábio Santiago | 99 99195-0983
 
