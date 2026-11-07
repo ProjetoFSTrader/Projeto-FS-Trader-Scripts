@@ -1,4 +1,4 @@
--- F22 REVERSAO | FS TRADER | Dev. Fábio Santiago | 99 99195-0983
+-- F22 REVERSAO | FS TRADER | M15 PROTECAO OCULTA
 instrument{name="F22 REVERSAO | Dev. Fábio Santiago | 99 99195-0983",icon="jpg",overlay=true}
 input_group{
 "Compra",
@@ -323,6 +323,19 @@ and(cv5>=lb_m*.18 or(z2<=lb_m*.65 and cv79))
 local cv61=lb_on and lb_m>0 and cv56 and cv44
 and low<=lb_bot+lb_m*.18 and close>=lb_bot-lb_m*.10
 and(cv6>=lb_m*.18 or(z2<=lb_m*.65 and cv78))
+-- M15 oculto: usa niveis M15 FECHADOS para proteger a entrada direcional.
+input_group{"M15 protecao oculta",m15_filtro_on=input{default=true,type=input.boolean}}
+local m15_s=security(current_ticker_id,"15m")
+local m15_hi=m15_s and get_value(m15_s.high[1],0)or 0
+local m15_lo=m15_s and get_value(m15_s.low[1],0)or 0
+local m15_top=m15_hi>0 and abs(high-m15_hi)<=lb_m*.28
+local m15_bot=m15_lo>0 and abs(low-m15_lo)<=lb_m*.28
+local m15_break_top=m15_hi>0 and close>m15_hi+lb_m*.20 and z2>=lb_m*.65
+local m15_break_bot=m15_lo>0 and close<m15_lo-lb_m*.20 and z2>=lb_m*.65
+local veto_m15_compra=m15_filtro_on and lb_m>0 and cv63 and m15_top and not m15_break_top
+and (cv5>=lb_m*.18 or(cv79 and z2<=lb_m*.70))
+local veto_m15_venda=m15_filtro_on and lb_m>0 and cv56 and m15_bot and not m15_break_bot
+and (cv6>=lb_m*.18 or(cv78 and z2<=lb_m*.70))
 input_group{"F22 - Freio de repeticao",f20_on=input{default=true,type=input.boolean}}
 local f20s=make_series()
 local f20n=make_series()
@@ -382,9 +395,9 @@ and not(f202buy and not f20topo)
 local f20vv=f20_on and f20m>0 and f20lado==-1 and f20cont>=2 and cv40<=10
 and close>=cv38-f20m*.65 and(cv92 or cv91)
 and not(cv100 and not cv91)
-sinal_compra=TA and(not z91)and(not cv54)and(not f20vc)and z57 and(not z8f)and(not z5a)and(not z1e)
+sinal_compra=TA and(not z91)and(not cv54)and(not veto_m15_compra)and(not f20vc)and z57 and(not z8f)and(not z5a)and(not z1e)
 and(z2>z3f*z74)and(not z40)and(not z5e)and(not z42)and(not z65)and(not z30)and(not z4e)
-sinal_venda=TB and(not z91)and(not cv61)and(not f20vv)and z61 and(not z90)and(not z5a)and(not z1e)
+sinal_venda=TB and(not z91)and(not cv61)and(not veto_m15_venda)and(not f20vv)and z61 and(not z90)and(not z5a)and(not z1e)
 and(z2>z3f*z74)and(not z40)and(not z64)and(not z42)and(not z6e)and(not z36)and(not z55)
 input_group{"H PROTECAO",h1on=input{default=true,type=input.boolean}}
 local h1soma=0
@@ -528,6 +541,8 @@ local cv24=cv12 and cv34 or
 ((not cv12)and cv58)
 local cv36=cv12 and cv45 or
 ((not cv12)and cv64)
+cv24=cv24 and not veto_m15_compra
+cv36=cv36 and not veto_m15_venda
 local cv27=make_series()
 local cv35=make_series()
 local cv4=get_value(cv27[1],0)

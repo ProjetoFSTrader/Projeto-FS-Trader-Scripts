@@ -1,4 +1,4 @@
--- F21 BARRAS M15 | FS TRADER | Dev. Fábio Santiago | 99 99195-0983
+-- F21 BARRAS M15 | FS TRADER | M15 OCULTO
 -- Motor pessoal com leitura historica e barras M15 fechadas.
 instrument{name="F21 BARRAS M15 | Dev. Fábio Santiago | 99 99195-0983",icon="jpg",overlay=true}
 input_group{
@@ -521,9 +521,11 @@ end
 hvS:set(z59);hvN:set(z3a);hvR:set(z3b)
 plot_shape(hv_dir==-1,"F20H_HEAVY_V",shape_style.diamond,shape_size.large,"#FF9800",shape_location.abovebar,0,"HEAVY","#FFFFFF")
 plot_shape(hv_dir==1,"F20H_HEAVY_C",shape_style.diamond,shape_size.large,"#00E5FF",shape_location.belowbar,0,"HEAVY","#FFFFFF")
-input_group{"Barras M15 fechadas",m15cor=input{default="#FFFFFF",type=input.color},m15larg=input{default=2,type=input.line_width}}
-local m15s=security(current_ticker_id,"15m")
-if m15s then
-    plot(m15s.high[1],"M15 Superior",m15cor,m15larg,0,style.levels,na_mode.continue)
-    plot(m15s.low[1],"M15 Inferior",m15cor,m15larg,0,style.levels,na_mode.continue)
+-- O M15 segue ativo na protecao, mas as linhas nao sao desenhadas por padrao.
+input_group{"Mostrar barras M15",m15_mostrar=input{default=false,type=input.boolean},
+    m15_cor=input{default="#FFFFFF",type=input.color},m15_larg=input{default=1,type=input.line_width}}
+local m15_barras=security(current_ticker_id,"15m")
+if m15_mostrar and m15_barras then
+    plot(m15_barras.high[1],"M15 Resistencia",m15_cor,m15_larg,0,style.levels,na_mode.continue)
+    plot(m15_barras.low[1],"M15 Suporte",m15_cor,m15_larg,0,style.levels,na_mode.continue)
 end

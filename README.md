@@ -32,9 +32,10 @@ Abaixo estão **sete artes com capturas reais da plataforma Exnova**, com as vel
 | Arquivo | Finalidade |
 | --- | --- |
 | [F20.txt](F20.txt) | **F20**: versão dos alunos, com H, HEAVY e barras M15. |
-| [F21_BARRAS_M15.txt](F21_BARRAS_M15.txt) | **F21 BARRAS M15**: versão pessoal, com leitura adicional de direção e proteções preservadas. |
-| [F21_BARRAS_M30.txt](F21_BARRAS_M30.txt) | **F21 BARRAS M30**: mesma base do F21, com suporte e resistência do M30 fechado, também utilizados nas proteções de borda. |
-| [F22_REVERSAO.txt](F22_REVERSAO.txt) | **F22 REVERSÃO**: versão com REV baseado em RSI e leitura de reação do preço, além das barras M30. |
+| [F20_BARRAS_M30.txt](F20_BARRAS_M30.txt) | **F20 BARRAS M30**: versão adicional com M30 visível e proteção complementar M15 oculta. |
+| [F21_BARRAS_M15.txt](F21_BARRAS_M15.txt) | **F21 BARRAS M15**: versão pessoal, com proteção M15 ativa e barras ocultas por padrão. |
+| [F21_BARRAS_M30.txt](F21_BARRAS_M30.txt) | **F21 BARRAS M30**: M30 visível com proteção seletiva M15 oculta, mantendo H e HEAVY. |
+| [F22_REVERSAO.txt](F22_REVERSAO.txt) | **F22 REVERSÃO**: RSI/REV com proteção seletiva M15 oculta e barras M30 visíveis. |
 
 **Desenvolvedor:** Dev. Fábio Santiago | 99 99195-0983
 

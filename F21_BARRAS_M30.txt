@@ -1,4 +1,4 @@
--- F21 BARRAS M30 | FS TRADER | Dev. Fábio Santiago | 99 99195-0983
+-- F21 BARRAS M30 | FS TRADER | M15 PROTECAO OCULTA
 -- Motor pessoal com leitura historica e barras M30 fechadas.
 instrument{name="F21 BARRAS M30 | Dev. Fábio Santiago | 99 99195-0983",icon="jpg",overlay=true}
 input_group{
@@ -304,6 +304,7 @@ q20p=q20w or get_value(q20ws[1],false)or get_value(q20ws[2],false)
 q20imp=z83 and(z15 or z11)
 z91=br20on and(q20b or q20p or q20imp)
 input_group{"Protecao de borda M30",lb_on=input{default=true,type=input.boolean}}
+input_group{"M15 complementar",m15_filtro_on=input{default=true,type=input.boolean}}
 local lb_m=media_range_s8
 local lb_sec=security(current_ticker_id,"30m")
 local lb_hi=lb_sec and get_value(lb_sec.high[1],0)or 0
@@ -324,6 +325,21 @@ and(pavio_superior_atual>=lb_m*.18 or(z2<=lb_m*.65 and lb_stall_c))
 local veto_borda_venda=lb_on and lb_m>0 and perna_baixa_curta and testa_borda_inferior
     and low<=lb_bot+lb_m*.18 and close>=lb_bot-lb_m*.10
 and(pavio_inferior_atual>=lb_m*.18 or(z2<=lb_m*.65 and lb_stall_v))
+-- M15 auxiliar: freio apenas quando a perna perde forca junto da borda M15 fechada.
+-- Nao exige concordancia M15/M30 nem veta um rompimento forte confirmado.
+local m15_s=security(current_ticker_id,"15m")
+local m15_hi=m15_s and get_value(m15_s.high[1],0)or 0
+local m15_lo=m15_s and get_value(m15_s.low[1],0)or 0
+local m15_testa_top=m15_hi>0 and abs(high-m15_hi)<=lb_m*.28
+local m15_testa_bot=m15_lo>0 and abs(low-m15_lo)<=lb_m*.28
+local m15_passou_top=m15_hi>0 and close>m15_hi+lb_m*.20 and z2>=lb_m*.65
+local m15_passou_bot=m15_lo>0 and close<m15_lo-lb_m*.20 and z2>=lb_m*.65
+local veto_m15_compra=m15_filtro_on and lb_m>0 and perna_alta_curta
+    and m15_testa_top and not m15_passou_top
+    and(pavio_superior_atual>=lb_m*.18 or(lb_stall_c and z2<=lb_m*.70))
+local veto_m15_venda=m15_filtro_on and lb_m>0 and perna_baixa_curta
+    and m15_testa_bot and not m15_passou_bot
+    and(pavio_inferior_atual>=lb_m*.18 or(lb_stall_v and z2<=lb_m*.70))
 input_group{"F21 - Freio de repeticao",f20_on=input{default=true,type=input.boolean}}
 local f20s=make_series()
 local f20n=make_series()
@@ -384,9 +400,9 @@ local f20vc=f20_on and f20m>0 and f20lado==1 and f20cont>=2 and f20idade<=10
 local f20vv=f20_on and f20m>0 and f20lado==-1 and f20cont>=2 and f20idade<=10
     and close>=f20preco-f20m*.65 and(f20briga or f20fundo)
     and not(f202sell and not f20fundo)
-sinal_compra=TA and(not z91)and(not veto_borda_compra)and(not f20vc)and z57 and(not z8f)and(not z5a)and(not z1e)
+sinal_compra=TA and(not z91)and(not veto_borda_compra)and(not veto_m15_compra)and(not f20vc)and z57 and(not z8f)and(not z5a)and(not z1e)
     and(z2>z3f*z74)and(not z40)and(not z5e)and(not z42)and(not z65)and(not z30)and(not z4e)
-sinal_venda=TB and(not z91)and(not veto_borda_venda)and(not f20vv)and z61 and(not z90)and(not z5a)and(not z1e)
+sinal_venda=TB and(not z91)and(not veto_borda_venda)and(not veto_m15_venda)and(not f20vv)and z61 and(not z90)and(not z5a)and(not z1e)
     and(z2>z3f*z74)and(not z40)and(not z64)and(not z42)and(not z6e)and(not z36)and(not z55)
 input_group{"H PROTECAO",h1on=input{default=true,type=input.boolean}}
 local h1soma=0
@@ -533,4 +549,11 @@ local m30_barras=security(current_ticker_id,"30m")
 if m30_barras then
     plot(m30_barras.high[1],"M30 Resistencia",m30_res_cor,m30_larg,0,style.levels,na_mode.continue)
     plot(m30_barras.low[1],"M30 Suporte",m30_sup_cor,m30_larg,0,style.levels,na_mode.continue)
+end
+-- M15 opcional para enxergar a borda complementar sem alterar barras M30.
+input_group{"Barras M15 auxiliares",m15_mostrar=input{default=false,type=input.boolean},
+    m15_cor=input{default="#FFFFFF",type=input.color},m15_larg=input{default=1,type=input.line_width}}
+if m15_mostrar and m15_s then
+    plot(m15_s.high[1],"M15 Aux Superior",m15_cor,m15_larg,0,style.levels,na_mode.continue)
+    plot(m15_s.low[1],"M15 Aux Inferior",m15_cor,m15_larg,0,style.levels,na_mode.continue)
 end
