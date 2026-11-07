@@ -51,7 +51,7 @@ Abaixo estão **sete artes com capturas reais da plataforma Exnova**, com as vel
 - **Formato:** scripts em `.txt` para estudo, edição e importação em ambientes que suportem QCS.
 - **Documentação técnica:** [Quadcode Script](https://quadcode-tech.github.io/quadcodescript-docs/).
 
-A compatibilidade e o comportamento de cada versão dependem do editor, da implementação de QCS e dos dados da plataforma utilizada. Teste primeiro em ambiente demonstrativo.
+A compatibilidade e o comportamento de cada versão dependem do editor, da implementação de QCS e dos dados da plataforma utilizada. Faça a validação primeiro em ambiente demonstrativo.
 
 ## ⚠️ Aviso de risco
 
