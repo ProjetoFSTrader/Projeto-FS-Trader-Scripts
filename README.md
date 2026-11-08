@@ -1,10 +1,10 @@
 # FS TRADER
 
-## F22 OPERACIONAL ATUAL
+## SCRIPT FS 22
 
 ![FS Trader - Capa](artes/FS_TRADER_CAPA.webp)
 
-[**Acessar F22 OPERACIONAL ATUAL**](F22_OPERACIONAL_ATUAL.txt)
+[**SCRIPT FS 22**](SCRIPT_FS_22.txt)
 
 ## Galeria do F22
 
