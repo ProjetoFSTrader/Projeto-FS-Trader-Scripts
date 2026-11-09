@@ -6,11 +6,11 @@
 
 [**SCRIPT FS 22**](SCRIPT_FS_22.txt)
 
-## F9 NEW | Versão de alto desempenho
+## F9 NEW AGRESSIVO | Versão mais ativa
 
-[**Baixar SCRIPT F9 NEW**](SCRIPT_F9_NEW.txt)
+[**Baixar F9 NEW AGRESSIVO**](F9_NEW_AGRESSIVO.txt)
 
-Versão mais ativa, voltada ao acompanhamento de tendências de alta e baixa, com H e REV. Exige leitura de contexto: **não é indicada para operar lateralizações ou caixotinhos**, onde podem ocorrer sinais desfavoráveis próximos aos suportes e resistências. Não operar todas as setas automaticamente; testar primeiro em conta DEMO e utilizar gestão de risco. O F9 NEW possui menos proteções que o FS22.
+Versão mais agressiva do FS Trader, com aproximadamente 50% mais sinais segundo observações em uso. Mantém o operacional com H e REV, incluindo a correção de estado e uma pausa de uma vela após a identificação de baleia. Exige **muita atenção**, leitura do gráfico e gestão de risco. Não operar automaticamente todas as setas. **Testar primeiro em conta DEMO**: versão experimental, sem garantia de acerto.
 
 ## SCRIPT FS 23 | EMA 5 + H + HEAVY
 
