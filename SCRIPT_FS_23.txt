@@ -1,0 +1,349 @@
+instrument{name="F23 | Fábio Santiago Trader",icon="jpg",overlay=true}
+input_group{"Periodo Max/Min",doch_time=input{default="10",type=input.string}}
+input_group{"Periodo da Micro Tendencia",emaa_per=input{default="5",type=input.string}}
+input_group{"Candles",positivo=input{default="#00FF20",type=input.color},negativo=input{default="#FF1010",type=input.color}}
+EMAA=ema(close,emaa_per)
+upper=highest(high,doch_time)
+lower=lowest(low,doch_time)
+TA=((close>close[1])and(close>EMAA)and(EMAA>EMAA[1]))
+TB=((close<close[1])and(close<EMAA)and(EMAA<EMAA[1]))
+input_group{"Qualidade Fixa do Sinal",micro_corpo_pct_txt=input{default="45",type=input.string},micro_tamanho_pct_txt=input{default="60",type=input.string}}
+cpa=abs(close-open)
+rta=high-low
+micro_range_1f=high[1]-low[1]
+micro_range_2f=high[2]-low[2]
+micro_range_3f=high[3]-low[3]
+micro_range_4f=high[4]-low[4]
+micro_range_5f=high[5]-low[5]
+movimento_micro_fechado=micro_range_1f+micro_range_2f+micro_range_3f+micro_range_4f+micro_range_5f
+mmf=movimento_micro_fechado/5
+micro_corpo_atual_pct=(rta>0)and(cpa/rta*100)or 100
+micro_vela_atual_fraca=(micro_corpo_atual_pct<tonumber(micro_corpo_pct_txt))and(mmf>0)and(cpa<mmf*tonumber(micro_tamanho_pct_txt)/100)
+input_group{"FILTROS F21",r5_on=input{default=true,type=input.boolean},fr_on=input{default=true,type=input.boolean},bar_on=input{default=true,type=input.boolean},dj_on=input{default=true,type=input.boolean},l2_on=input{default=true,type=input.boolean},br20on=input{default=false,type=input.boolean},rc_on=input{default=true,type=input.boolean},h1on=input{default=true,type=input.boolean},hv_on=input{default=true,type=input.boolean},hv_excl=input{default=true,type=input.boolean},hv_ema=input{default=false,type=input.boolean},rc_k=input{default="35",type=input.string}}
+sec=security(current_ticker_id,"1m")
+if sec then
+local bar_color
+if close>=open then
+bar_color=positivo
+else
+bar_color=negativo
+end
+plot_candle(open,high,low,close,"ES",bar_color)
+end
+r1=high[1]-low[1]
+r2=high[2]-low[2]
+r3=high[3]-low[3]
+r4=high[4]-low[4]
+r5x=high[5]-low[5]
+r6=high[6]-low[6]
+r7=high[7]-low[7]
+media_range=(rta+r1+r2+r3)/4
+r8=high[8]-low[8]
+r9=high[9]-low[9]
+r10=high[10]-low[10]
+r11=high[11]-low[11]
+r12=high[12]-low[12]
+r13=high[13]-low[13]
+r14=high[14]-low[14]
+media_range_15=(rta+r1+r2+r3+r4+r5x+r6+r7+r8+r9+r10+r11+r12+r13+r14)/15
+input_group{"Lateralizacao e Forca Minima",eficiencia_min_txt=input{default="12",type=input.string},forca_min_txt=input{default="20",type=input.string}}
+progresso_liquido=abs(close-close[7])
+movimento_total=rta+r1+r2+r3+r4+r5x+r6+r7
+eficiencia=(movimento_total>0)and(progresso_liquido/movimento_total*100)or 100
+lateralizado=eficiencia<tonumber(eficiencia_min_txt)
+forca_min=tonumber(forca_min_txt)/100
+input_group{"Lateralizacao rapida (janela curta, pega caixotinho cedo)",eficiencia_curta_min_txt=input{default="8",type=input.string}}
+progresso_liquido_curto=abs(close-close[3])
+movimento_total_curto=rta+r1+r2+r3
+eficiencia_curta=(movimento_total_curto>0)and(progresso_liquido_curto/movimento_total_curto*100)or 100
+lateralizado_curto=eficiencia_curta<tonumber(eficiencia_curta_min_txt)
+input_group{"Exaustao de perna (limiar em multiplos do range medio)",exaustao_limiar_txt=input{default="25",type=input.string}}
+distancia_perna=abs(close-close[15])
+perna_esticada=(media_range>0)and(distancia_perna>media_range*tonumber(exaustao_limiar_txt))or false
+input_group{"Freio pos-impulso S6 (apenas 1 vela)",pos_impulso_range_pct_txt=input{default="120",type=input.string},pos_impulso_corpo_pct_txt=input{default="55",type=input.string},pos_impulso_proximidade_txt=input{default="25",type=input.string},pos_impulso_break_corpo_txt=input{default="20",type=input.string},pos_impulso_break_margem_txt=input{default="0",type=input.string}}
+m8=(r2+r3+r4+r5x+r6+r7+r8+r9)/8
+corpo_1_fechado=abs(close[1]-open[1])
+corpo_1_pct=(r1>0)and(corpo_1_fechado/r1*100)or 0
+limiar_range_impulso=m8*tonumber(pos_impulso_range_pct_txt)/100
+iax=(m8>0)and(close[1]>open[1])and(r1>=limiar_range_impulso)and(corpo_1_pct>=tonumber(pos_impulso_corpo_pct_txt))
+ibx=(m8>0)and(close[1]<open[1])and(r1>=limiar_range_impulso)and(corpo_1_pct>=tonumber(pos_impulso_corpo_pct_txt))
+tfp=highest(high[1],doch_time)
+ffp=lowest(low[1],doch_time)
+margem_pos_impulso=m8*tonumber(pos_impulso_proximidade_txt)/100
+chegou_topo_pos=(tfp-high[1])<=margem_pos_impulso
+chegou_fundo_pos=(low[1]-ffp)<=margem_pos_impulso
+margem_break_pos=m8*tonumber(pos_impulso_break_margem_txt)/100
+corpo_break_pos=m8*tonumber(pos_impulso_break_corpo_txt)/100
+rompimento_compra_pos=(close>tfp+margem_break_pos)and(close>open)and(cpa>=corpo_break_pos)
+rompimento_venda_pos=(close<ffp-margem_break_pos)and(close<open)and(cpa>=corpo_break_pos)
+freio_pos_compra=iax and chegou_topo_pos and(not rompimento_compra_pos)
+freio_pos_venda=ibx and chegou_fundo_pos and(not rompimento_venda_pos)
+input_group{"Aviso de Extremo (marca fraca: nao vira seta)",extremo_pavio_pct_txt=input{default="35",type=input.string},extremo_proximidade_txt=input{default="30",type=input.string},extremo_corpo_media_txt=input{default="85",type=input.string}}
+pavio_superior_atual=high-max(open,close)
+pavio_inferior_atual=min(open,close)-low
+pvs=(rta>0)and(pavio_superior_atual/rta*100)or 0
+pvi=(rta>0)and(pavio_inferior_atual/rta*100)or 0
+margem_extremo=media_range*tonumber(extremo_proximidade_txt)/100
+pre=(upper-high)<=margem_extremo
+psu=(low-lower)<=margem_extremo
+corpo_curto_extremo=(mmf>0)and(cpa<=mmf*tonumber(extremo_corpo_media_txt)/100)
+aviso_extremo_compra=pre and corpo_curto_extremo and(pvs>=tonumber(extremo_pavio_pct_txt))
+aviso_extremo_venda=psu and corpo_curto_extremo and(pvi>=tonumber(extremo_pavio_pct_txt))
+input_group{"S6 - Transicao de Regime",transicao_pavio_pct_txt=input{default="30",type=input.string},transicao_buffer_pct_txt=input{default="4",type=input.string}}
+rga=(close[1]>EMAA[1])and(EMAA[1]>=EMAA[2])
+rgb=(close[1]<EMAA[1])and(EMAA[1]<=EMAA[2])
+trans_range_1=high[1]-low[1]
+trans_pavio_sup_1=high[1]-max(open[1],close[1])
+trans_pavio_inf_1=min(open[1],close[1])-low[1]
+tps=(trans_range_1>0)and(trans_pavio_sup_1/trans_range_1*100)or 0
+tpi=(trans_range_1>0)and(trans_pavio_inf_1/trans_range_1*100)or 0
+trans_reacao_alta_1=((close[1]>open[1])or(tpi>=tonumber(transicao_pavio_pct_txt)))and((low[1]>=low[2])or(close[1]>close[2]))
+trans_reacao_baixa_1=((close[1]<open[1])or(tps>=tonumber(transicao_pavio_pct_txt)))and((high[1]<=high[2])or(close[1]<close[2]))
+trans_base=(r1+r2+r3+r4+r5x)/5
+trans_buffer=trans_base*tonumber(transicao_buffer_pct_txt)/100
+trans_topo_2=max(high[1],high[2])
+trans_fundo_2=min(low[1],low[2])
+transicao_baixa_para_alta=rgb and trans_reacao_alta_1 and(close>=trans_fundo_2-trans_buffer)
+transicao_alta_para_baixa=rga and trans_reacao_baixa_1 and(close<=trans_topo_2+trans_buffer)
+transicao_freia_venda=transicao_baixa_para_alta
+transicao_freia_compra=transicao_alta_para_baixa
+input_group{"S8 - Ajuste fino de fluxo",s8_fluxo_eficiencia_txt=input{default="18",type=input.string},s8_ponta_mult_txt=input{default="4.5",type=input.string},s8_ponta_corpo_txt=input{default="70",type=input.string},s8_ponta_pavio_txt=input{default="30",type=input.string}}
+dir_1=(close[1]>open[1])and 1 or((close[1]<open[1])and-1 or 0)
+dir_2=(close[2]>open[2])and 1 or((close[2]<open[2])and-1 or 0)
+dir_3=(close[3]>open[3])and 1 or((close[3]<open[3])and-1 or 0)
+dir_4=(close[4]>open[4])and 1 or((close[4]<open[4])and-1 or 0)
+dir_5=(close[5]>open[5])and 1 or((close[5]<open[5])and-1 or 0)
+troca_12=(dir_1~=0)and(dir_2~=0)and(dir_1~=dir_2)and 1 or 0
+troca_23=(dir_2~=0)and(dir_3~=0)and(dir_2~=dir_3)and 1 or 0
+troca_34=(dir_3~=0)and(dir_4~=0)and(dir_3~=dir_4)and 1 or 0
+troca_45=(dir_4~=0)and(dir_5~=0)and(dir_4~=dir_5)and 1 or 0
+alt5=troca_12+troca_23+troca_34+troca_45
+movimento_fluxo_6=rta+r1+r2+r3+r4+r5x
+progresso_fluxo_6=abs(close-close[5])
+eficiencia_fluxo_6=(movimento_fluxo_6>0)and(progresso_fluxo_6/movimento_fluxo_6*100)or 100
+falso_fluxo_s8=(alt5>=3)and(eficiencia_fluxo_6<tonumber(s8_fluxo_eficiencia_txt))
+m5=(r1+r2+r3+r4+r5x)/5
+distancia_s8=abs(close-close[5])
+pf8=(m5>0)and(distancia_s8>=m5*tonumber(s8_ponta_mult_txt))
+corpo_rel_s8=(m5>0)and(cpa/m5*100)or 100
+perdeu_corpo_s8=corpo_rel_s8<tonumber(s8_ponta_corpo_txt)
+rejeita_compra_s8=pvs>=tonumber(s8_ponta_pavio_txt)
+rejeita_venda_s8=pvi>=tonumber(s8_ponta_pavio_txt)
+ponta_compra_s8=pf8 and pre and(perdeu_corpo_s8 or rejeita_compra_s8)
+ponta_venda_s8=pf8 and psu and(perdeu_corpo_s8 or rejeita_venda_s8)
+s9lite_alta_madura=rga and pf8 and pre
+s9lite_baixa_madura=rgb and pf8 and psu
+s9lite_pausa_alta=(close[1]<=close[2]+m5*0.18)or rejeita_compra_s8
+s9lite_pausa_baixa=(close[1]>=close[2]-m5*0.18)or rejeita_venda_s8
+s9lite_retomou_alta=close>high[1]and close>open and cpa>m5*0.40
+s9lite_retomou_baixa=close<low[1]and close<open and cpa>m5*0.40
+s9lite_bloqueia_compra=s9lite_alta_madura and s9lite_pausa_alta and(not s9lite_retomou_alta)
+s9lite_bloqueia_venda=s9lite_baixa_madura and s9lite_pausa_baixa and(not s9lite_retomou_baixa)
+f9m=m5*0.30
+f9_topo_fechado=highest(high[1],doch_time)
+f9_fundo_fechado=lowest(low[1],doch_time)
+f9_topo_repetido=((f9_topo_fechado-high[1])<=f9m)and((f9_topo_fechado-high[2])<=f9m)
+f9_fundo_repetido=((low[1]-f9_fundo_fechado)<=f9m)and((low[2]-f9_fundo_fechado)<=f9m)
+f9_sem_avanco_alta=close[1]<=close[2]+m5*0.18
+f9_sem_avanco_baixa=close[1]>=close[2]-m5*0.18
+f9_rompeu_topo=close>high[1]and close>open and cpa>m5*0.40
+f9_rompeu_fundo=close<low[1]and close<open and cpa>m5*0.40
+f9_bloqueia_compra=rga and pre and f9_topo_repetido and f9_sem_avanco_alta and(not f9_rompeu_topo)
+f9_bloqueia_venda=rgb and psu and f9_fundo_repetido and f9_sem_avanco_baixa and(not f9_rompeu_fundo)
+sc=TA and(not lateralizado)and(not lateralizado_curto)and(cpa>media_range_15*forca_min)and(not perna_esticada)and(not freio_pos_compra)and(not falso_fluxo_s8)and(not ponta_compra_s8)and(not s9lite_bloqueia_compra)and(not f9_bloqueia_compra)
+sv=TB and(not lateralizado)and(not lateralizado_curto)and(cpa>media_range_15*forca_min)and(not perna_esticada)and(not freio_pos_venda)and(not falso_fluxo_s8)and(not ponta_venda_s8)and(not s9lite_bloqueia_venda)and(not f9_bloqueia_venda)
+r5_top=highest(high[2],doch_time)
+r5_bot=lowest(low[2],doch_time)
+r5_base=m5
+r5_near=r5_base*0.30
+r5_rej=r5_base*0.10
+r5_falhou_c=r5_base>0 and high[1]>=r5_top-r5_near and close[1]<r5_top-r5_rej and(close[1]<open[1]or tps>=35)
+r5_falhou_v=r5_base>0 and low[1]<=r5_bot+r5_near and close[1]>r5_bot+r5_rej and(close[1]>open[1]or tpi>=35)
+r5_s=make_series()
+r5_n=make_series()
+r5_d=get_value(r5_s[1],0)
+r5_lim=get_value(r5_n[1],get_value(close[1],close))
+if r5_d==0 then
+if r5_falhou_c then r5_d=1;r5_lim=max(r5_top,high[1])
+elseif r5_falhou_v then r5_d=-1;r5_lim=min(r5_bot,low[1])end
+end
+r5_rompe_c=r5_d==1 and close>r5_lim+r5_base*0.15 and close>open and cpa>r5_base*0.40
+r5_rompe_v=r5_d==-1 and close<r5_lim-r5_base*0.15 and close<open and cpa>r5_base*0.40
+r5_mudou_c=r5_d==1 and close[1]<r5_lim-r5_base*2 and EMAA[1]<EMAA[2]
+r5_mudou_v=r5_d==-1 and close[1]>r5_lim+r5_base*2 and EMAA[1]>EMAA[2]
+if r5_rompe_c or r5_rompe_v or r5_mudou_c or r5_mudou_v then r5_d=0 end
+r5_s:set(r5_d)
+r5_n:set(r5_lim)
+sc=sc and not(r5_on and r5_d==1)
+sv=sv and not(r5_on and r5_d==-1)
+q20sum=r1+r2+r3+r4+r5x
+q20eff=q20sum>0 and abs(close[1]-close[5])/q20sum or 1
+q20ov=0
+for k=1,4 do
+local qra=get_value(high[k],0)-get_value(low[k],0)
+local qrb=get_value(high[k+1],0)-get_value(low[k+1],0)
+local qr=min(qra,qrb)
+if qr>0 and max(0,min(get_value(high[k],0),get_value(high[k+1],0))-max(get_value(low[k],0),get_value(low[k+1],0)))>qr*.55 then q20ov=q20ov+1 end
+end
+q20b=(alt5>=3 and q20eff<.23 and q20ov>=3)or(alt5>=2 and q20eff<.10 and q20ov>=4)
+q20bs=conditional(q20b)
+q20antes=get_value(q20bs[1],false)
+q20w=q20antes and m8>0 and r1>=m8*1.60 and corpo_1_pct>=65
+q20ws=conditional(q20w)
+q20p=q20w or get_value(q20ws[1],false)or get_value(q20ws[2],false)
+q20imp=q20antes and(iax or ibx)
+q20veto=br20on and(q20b or q20p or q20imp)
+sc=sc and not q20veto
+sv=sv and not q20veto
+fr_ctx=eficiencia_fluxo_6<20 and alt5>=2
+fr_m=m8
+bm=security(current_ticker_id,"15m")
+bH=bm and get_value(bm.high[1],0)or 0
+bL=bm and get_value(bm.low[1],0)or 0
+fr_c=fr_on and fr_ctx and high>=tfp-fr_m*.2 and(pvs>=25 or close<=tfp+fr_m*.15 or cpa<fr_m*.6 or iax)
+fr_v=fr_on and fr_ctx and low<=ffp+fr_m*.2 and(pvi>=25 or close>=ffp-fr_m*.15 or cpa<fr_m*.6 or ibx)
+sc=sc and not fr_c
+sv=sv and not fr_v
+bar_c=bar_on and fr_ctx and bH>0 and high>=bH-fr_m*.25 and close<=bH+fr_m*.25
+bar_v=bar_on and fr_ctx and bL>0 and low<=bL+fr_m*.25 and close>=bL-fr_m*.25
+sc=sc and not bar_c
+sv=sv and not bar_v
+dj1=r1>0 and corpo_1_fechado<=r1*.15
+df1=r1>0 and tpi>=60
+gs1=r1>0 and tps>=60
+dj_c=dj_on and fr_ctx and(dj1 or gs1)
+dj_v=dj_on and fr_ctx and(dj1 or df1)
+sc=sc and not dj_c
+sv=sv and not dj_v
+l2c=l2_on and fr_ctx and close[1]>open[1]and close[2]>open[2]
+l2v=l2_on and fr_ctx and close[1]<open[1]and close[2]<open[2]
+sc=sc and not l2c
+sv=sv and not l2v
+input_group{"S9 - Alerta de topo/fundo repetido",s9_extremo_pct_txt=input{default="30",type=input.string},s9_progresso_pct_txt=input{default="18",type=input.string}}
+s9_base=(r1+r2+r3+r4+r5x)/5
+s9_margem=s9_base*tonumber(s9_extremo_pct_txt)/100
+s9_progresso=s9_base*tonumber(s9_progresso_pct_txt)/100
+s9_topo_fechado=highest(high[1],doch_time)
+s9_fundo_fechado=lowest(low[1],doch_time)
+s9_2_topo=((s9_topo_fechado-high[1])<=s9_margem)and((s9_topo_fechado-high[2])<=s9_margem)
+s9_2_fundo=((low[1]-s9_fundo_fechado)<=s9_margem)and((low[2]-s9_fundo_fechado)<=s9_margem)
+s9_sem_avanco_alta=close[1]<=close[2]+s9_progresso
+s9_sem_avanco_baixa=close[1]>=close[2]-s9_progresso
+s9_alerta_topo_compra=rga and s9_2_topo and s9_sem_avanco_alta and pre
+s9_alerta_fundo_venda=rgb and s9_2_fundo and s9_sem_avanco_baixa and psu
+fraco_c=micro_vela_atual_fraca or aviso_extremo_compra or transicao_freia_compra or s9_alerta_topo_compra
+fraco_v=micro_vela_atual_fraca or aviso_extremo_venda or transicao_freia_venda or s9_alerta_fundo_venda
+sc=sc and not fraco_c
+sv=sv and not fraco_v
+local h1soma=0
+for k=2,21 do h1soma=h1soma+max(0,get_value(high[k],0)-get_value(low[k],0))end
+local h1f=h1soma/20
+local h1o=get_value(open,0)
+local h1c=get_value(close,0)
+local h1hi=get_value(high,0)
+local h1lo=get_value(low,0)
+local h1c1=get_value(close[1],0)
+local h1ema1=get_value(EMAA[1],0)
+local h1up=get_value(highest(high[1],12),0)
+local h1dn=get_value(lowest(low[1],12),0)
+local h1r=max(0,h1hi-h1lo)
+local h1s=h1hi-max(h1o,h1c)
+local h1i=min(h1o,h1c)-h1lo
+local h1ta=h1f>0 and h1c1>h1ema1 and h1ema1>=get_value(EMAA[4],0)and h1c1-get_value(close[8],h1c1)>=h1f*1.6
+local h1tb=h1f>0 and h1c1<h1ema1 and h1ema1<=get_value(EMAA[4],0)and get_value(close[8],h1c1)-h1c1>=h1f*1.6
+local h1rejeitatop=h1r>0 and h1s>=h1r*.30 and h1s>=h1f*.20 and h1c<=h1hi-h1f*.20
+local h1rejeitabot=h1r>0 and h1i>=h1r*.30 and h1i>=h1f*.20 and h1c>=h1lo+h1f*.20
+local h1falhatop=h1hi>h1up+h1f*.10 and h1c<=h1up-h1f*.02
+local h1falhabot=h1lo<h1dn-h1f*.10 and h1c>=h1dn+h1f*.02
+local h1top=h1ta and h1hi>=h1up-h1f*.25 and(h1rejeitatop or h1falhatop)
+local h1bot=h1tb and h1lo<=h1dn+h1f*.25 and(h1rejeitabot or h1falhabot)
+local h1mem=make_series()
+local h1anc=make_series()
+local h1re=make_series()
+local h1old=get_value(h1mem[1],0)
+local h1preco=get_value(h1anc[1],h1c1)
+local h1recuo=get_value(h1re[1],0)
+if h1old==1 and h1c1<h1preco-h1f*.85 then h1recuo=1 end
+if h1old==-1 and h1c1>h1preco+h1f*.85 then h1recuo=1 end
+local h1podeTop=h1top and(h1old~=1 or h1hi>h1preco+h1f*1.25 or(h1recuo==1 and h1hi>=h1preco-h1f*.15))
+local h1podeBot=h1bot and(h1old~=-1 or h1lo<h1preco-h1f*1.25 or(h1recuo==1 and h1lo<=h1preco+h1f*.15))
+u_t=get_value(open_time,0)
+if u_b~=u_t then u_b=u_t;u_d=0 end
+if u_hb~=u_t then u_hb=u_t;u_h=0 end
+if u_vb~=u_t then u_vb=u_t;u_v=0 end
+local rcS=make_series()
+local rvS=make_series()
+local rcn=get_value(rcS[1],0)
+local rvn=get_value(rvS[1],0)
+local rci=rc_on and bH>0 and close>=bL and close<=bH and eficiencia_fluxo_6<tonumber(rc_k)
+sc=sc and not(rci and rcn>0)
+sv=sv and not(rci and rvn>0)
+if h1on and u_h==0 and u_d==0 then
+if h1podeTop and not h1podeBot then u_h=1
+elseif h1podeBot and not h1podeTop then u_h=-1 end
+end
+if u_h~=0 then
+h1old=u_h
+h1preco=u_h==1 and h1hi or h1lo
+h1recuo=0
+end
+h1mem:set(h1old)
+h1anc:set(h1preco)
+h1re:set(h1recuo)
+if u_d==0 and u_h==0 and not(hv_excl and u_v~=0)then
+if get_value(sc,false)then u_d=1
+elseif get_value(sv,false)then u_d=-1 end
+end
+sc=u_d==1 and u_h==0
+sv=u_d==-1 and u_h==0
+plot_shape(u_h==1,"F21_H_TOPO",shape_style.arrowdown,shape_size.large,"#FF9800",shape_location.abovebar,0,"H","#FFFFFF")
+plot_shape(u_h==-1,"F21_H_FUNDO",shape_style.arrowup,shape_size.large,"#00E5FF",shape_location.belowbar,0,"H","#FFFFFF")
+input_group{"UP - UP COLOR",call_color=input{default="#0bd104",type=input.color}}
+input_group{"DOWN - DOWN COLOR",put_color=input{default="#f70202",type=input.color}}
+hv_m=m5
+hv_t=highest(high[1],8)
+hv_f=lowest(low[1],8)
+hv_w=hv_t-hv_f
+hv_r=high-low
+hv_c=abs(close-open)
+hv_pc=(hv_r>0)and(hv_c/hv_r)or 0
+hv_eff=(r1+r2+r3+r4+r5x)>0 and abs(close[1]-close[5])/(r1+r2+r3+r4+r5x)or 1
+hv_lat=hv_m>0 and hv_w>=hv_m*2.3 and hv_w<=hv_m*7.5 and(alt5>=2 or hv_eff<.30)
+hv_ta=hv_m>0 and close[1]>EMAA[1]and EMAA[1]>=EMAA[3]and close[1]-close[6]>=hv_m*1.4
+hv_tb=hv_m>0 and close[1]<EMAA[1]and EMAA[1]<=EMAA[3]and close[6]-close[1]>=hv_m*1.4
+hv_rej_t=pvs>=28 or close<close[1]-hv_m*.12
+hv_rej_f=pvi>=28 or close>close[1]+hv_m*.12
+hv_sell=hv_m>0 and(hv_ta or hv_lat)and high>=hv_t-hv_m*.30 and close<open and hv_pc>=.60 and hv_c>=hv_m*.60 and hv_rej_t and close<hv_t+hv_m*.10
+hv_buy=hv_m>0 and(hv_tb or hv_lat)and low<=hv_f+hv_m*.30 and close>open and hv_pc>=.60 and hv_c>=hv_m*.60 and hv_rej_f and close>hv_f-hv_m*.10
+local hvS=make_series()
+local hvN=make_series()
+local hvR=make_series()
+local hv_prev=get_value(hvS[1],0)
+local hv_level=get_value(hvN[1],close[1])
+local hv_rearm=get_value(hvR[1],0)
+if hv_prev==1 and close[1]>=hv_level+hv_m*1.35 then hv_rearm=1 end
+if hv_prev==-1 and close[1]<=hv_level-hv_m*1.35 then hv_rearm=1 end
+hv_sell=hv_sell and not(hv_ema and EMAA>EMAA[3]+hv_m*.35 and close>EMAA)
+hv_buy=hv_buy and not(hv_ema and EMAA<EMAA[3]-hv_m*.35 and close<EMAA)
+hv_buy=hv_buy and(hv_prev~=1 or hv_rearm==1 or abs(low-hv_level)>hv_m*1.1)
+hv_sell=hv_sell and(hv_prev~=-1 or hv_rearm==1 or abs(high-hv_level)>hv_m*1.1)
+if hv_on and u_v==0 and not(hv_excl and(u_d~=0 or u_h~=0))then
+if hv_sell and not hv_buy then u_v=-1
+elseif hv_buy and not hv_sell then u_v=1 end
+end
+if u_v~=0 then
+hv_prev=u_v;hv_level=u_v==1 and low or high;hv_rearm=0
+end
+hvS:set(hv_prev);hvN:set(hv_level);hvR:set(hv_rearm)
+input_group{"Barras M30 fechadas",m30_res_cor=input{default="#FF0000",type=input.color},m30_sup_cor=input{default="#00FF00",type=input.color},m30_larg=input{default=2,type=input.line_width}}
+local m30_barras=security(current_ticker_id,"30m")
+if m30_barras then
+plot(m30_barras.high[1],"M30 Resistencia",m30_res_cor,m30_larg,0,style.levels,na_mode.continue)
+plot(m30_barras.low[1],"M30 Suporte",m30_sup_cor,m30_larg,0,style.levels,na_mode.continue)
+end
+rcS:set(u_d==1 and 10 or max(0,rcn-1))
+rvS:set(u_d==-1 and 10 or max(0,rvn-1))
+if sc then plot_shape(1,"F21_COMPRA",shape_style.arrowup,shape_size.large,call_color,shape_location.belowbar,0,"Compra","#fcfc04")end
+if sv then plot_shape(1,"F21_VENDA",shape_style.arrowdown,shape_size.large,put_color,shape_location.abovebar,0,"Venda","#fcfc01")end
+if u_v==-1 then plot_shape(1,"F21H_HEAVY_V",shape_style.diamond,shape_size.large,"#FF9800",shape_location.abovebar,0,"HEAVY","#FFFFFF")end
+if u_v==1 then plot_shape(1,"F21H_HEAVY_C",shape_style.diamond,shape_size.large,"#00E5FF",shape_location.belowbar,0,"HEAVY","#FFFFFF")end
