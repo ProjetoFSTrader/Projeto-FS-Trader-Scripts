@@ -6,6 +6,12 @@
 
 [**SCRIPT FS 22**](SCRIPT_FS_22.txt)
 
+## F9 NEW | Versão de alto desempenho
+
+[**Baixar SCRIPT F9 NEW**](SCRIPT_F9_NEW.txt)
+
+Versão mais ativa, voltada ao acompanhamento de tendências de alta e baixa, com H e REV. Exige leitura de contexto: **não é indicada para operar lateralizações ou caixotinhos**, onde podem ocorrer sinais desfavoráveis próximos aos suportes e resistências. Não operar todas as setas automaticamente; testar primeiro em conta DEMO e utilizar gestão de risco. O F9 NEW possui menos proteções que o FS22.
+
 ## Galeria do F22
 
 ![FS Trader - Arte 1](artes/FS_TRADER_ARTE_01.webp)
