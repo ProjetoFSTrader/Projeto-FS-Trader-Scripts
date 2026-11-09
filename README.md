@@ -12,6 +12,12 @@
 
 Versão mais ativa, voltada ao acompanhamento de tendências de alta e baixa, com H e REV. Exige leitura de contexto: **não é indicada para operar lateralizações ou caixotinhos**, onde podem ocorrer sinais desfavoráveis próximos aos suportes e resistências. Não operar todas as setas automaticamente; testar primeiro em conta DEMO e utilizar gestão de risco. O F9 NEW possui menos proteções que o FS22.
 
+## SCRIPT FS 23 | EMA 5 + H + HEAVY
+
+[**Baixar SCRIPT FS 23**](SCRIPT_FS_23.txt)
+
+Versão separada, baseada no último código enviado, originalmente identificado como F21D1. Inclui proteções F21 e marcador HEAVY. **Versão de teste**: validar em conta DEMO antes de operar; nenhuma entrada ou indicador garante acerto.
+
 ## Galeria do F22
 
 ![FS Trader - Arte 1](artes/FS_TRADER_ARTE_01.webp)
