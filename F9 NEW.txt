@@ -1,4 +1,5 @@
-instrument{name="F9 NEW DEV FABIO SANTIAGO ",icon="jpg",overlay=true}
+-- F9 NEW | FABIO SANTIAGO | WHATSAPP: (99) 99195-0983
+instrument{name="F9 NEW - FABIO SANTIAGO - (99) 99195-0983",icon="jpg",overlay=true}
 input_group{
 "Periodo Max/Min",
 doch_time=input{default="10",type=input.string}
@@ -9,9 +10,8 @@ emaa_per=input{default="10",type=input.string}
 }
 input_group{
 "Candles",
-positivo=input{default="#0bd104",type=input.color},
-negativo=input{default="#f70202",type=input.color},
-neutro=input{default="#A16F8C",type=input.color},
+positivo=input{default="#00C853",type=input.color},
+negativo=input{default="#B00020",type=input.color},
 }
 input_group{
 "Canal (Resistencia/Suporte)",
@@ -33,7 +33,7 @@ bar_color=positivo
 elseif(TB==true)then
 bar_color=negativo
 else
-bar_color=neutro
+bar_color=(close>=open)and positivo or negativo
 end
 plot_candle(open,high,low,close,"ES",bar_color)
 end
