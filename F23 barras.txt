@@ -212,8 +212,10 @@ sv=sv and not bar_v
 input_group{"F23 BARRAS TESTE",b23_on=input{default=true,type=input.boolean},b23_pct=input{default="40",type=input.string},b23_vis=input{default=false,type=input.boolean}}
 local b23m=(r1+r2+r3+r4+r5x+r6+r7+r8)/8
 local b23k=b23m*tonumber(b23_pct)/100
-local b23c=b23_on and b23m>0 and ((bH>0 and close[1]<=bH and close>=bH-b23k)or(bL>0 and close[1]<=bL and close>=bL-b23k))
-local b23v=b23_on and b23m>0 and ((bH>0 and close[1]>=bH and close<=bH+b23k)or(bL>0 and close[1]>=bL and close<=bL+b23k))
+local b23re_c=close[1]<=open[1] or close[1]<=close[2]+b23m*.18 or high[1]-max(open[1],close[1])>=b23m*.25
+local b23re_v=close[1]>=open[1] or close[1]>=close[2]-b23m*.18 or min(open[1],close[1])-low[1]>=b23m*.25
+local b23c=b23_on and b23m>0 and bH>0 and close[1]<=bH and high[1]>=bH-b23k and close>=bH-b23k and b23re_c
+local b23v=b23_on and b23m>0 and bL>0 and close[1]>=bL and low[1]<=bL+b23k and close<=bL+b23k and b23re_v
 sc=sc and not b23c
 sv=sv and not b23v
 dj1=r1>0 and corpo_1_fechado<=r1*.15
