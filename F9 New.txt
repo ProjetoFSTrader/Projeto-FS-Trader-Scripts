@@ -10,8 +10,8 @@ emaa_per=input{default="10",type=input.string}
 }
 input_group{
 "Candles",
-positivo=input{default="#0bd104",type=input.color},
-negativo=input{default="#f70202",type=input.color},
+positivo=input{default="#00C853",type=input.color},
+negativo=input{default="#B00020",type=input.color},
 }
 input_group{
 "Canal (Resistencia/Suporte)",
@@ -28,10 +28,12 @@ range_atual=high-low
 sec=security(current_ticker_id,"1m")
 if sec then
 local bar_color
-if close>=open then
+if(TA==true)then
 bar_color=positivo
-else
+elseif(TB==true)then
 bar_color=negativo
+else
+bar_color=(close>=open)and positivo or negativo
 end
 plot_candle(open,high,low,close,"ES",bar_color)
 end
