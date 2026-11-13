@@ -1,5 +1,4 @@
--- F9 New | FABIO SANTIAGO | WHATSAPP: (99) 99195-0983
-instrument{name="F9 New",icon="jpg",overlay=true}
+instrument{name="Fabio Santiago dev",icon="jpg",overlay=true}
 input_group{
 "Periodo Max/Min",
 doch_time=input{default="10",type=input.string}
@@ -10,8 +9,8 @@ emaa_per=input{default="10",type=input.string}
 }
 input_group{
 "Candles",
-positivo=input{default="#00C853",type=input.color},
-negativo=input{default="#B00020",type=input.color},
+positivo=input{default="#39FF14",type=input.color},
+negativo=input{default="#D00000",type=input.color},
 }
 input_group{
 "Canal (Resistencia/Suporte)",
@@ -195,38 +194,29 @@ local piso=lowest(low[1],5)
 local caixa=caixa_on and media_range_s8>0 and alternancias_5>=1
 and teto-piso<=2.3*media_range_s8 and close>=piso and close<=teto
 input_group{"Setas",call_color=input{default="#0bd104",type=input.color},put_color=input{default="#f70202",type=input.color}}
-input_group{"H PROTECAO",h1on=input{default=true,type=input.boolean}}
+input_group{"H+ ANTECIPADO - TESTE",h1on=input{default=true,type=input.boolean},h_prox_txt=input{default="25",type=input.string}}
 local h1soma=0
 for k=2,21 do h1soma=h1soma+max(0,get_value(high[k],0)-get_value(low[k],0))end
 local h1f=h1soma/20
-local h1o=get_value(open,0)
-local h1c=get_value(close,0)
 local h1hi=get_value(high,0)
 local h1lo=get_value(low,0)
 local h1c1=get_value(close[1],0)
 local h1ema1=get_value(EMAA[1],0)
 local h1up=get_value(highest(high[1],12),0)
 local h1dn=get_value(lowest(low[1],12),0)
-local h1r=max(0,h1hi-h1lo)
-local h1s=h1hi-max(h1o,h1c)
-local h1i=min(h1o,h1c)-h1lo
 local h1ta=h1f>0 and h1c1>h1ema1 and h1ema1>=get_value(EMAA[4],0)and h1c1-get_value(close[8],h1c1)>=h1f*1.6
 local h1tb=h1f>0 and h1c1<h1ema1 and h1ema1<=get_value(EMAA[4],0)and get_value(close[8],h1c1)-h1c1>=h1f*1.6
-local cv73=h1r>0 and h1s>=h1r*.30 and h1s>=h1f*.20 and h1c<=h1hi-h1f*.20
-local cv70=h1r>0 and h1i>=h1r*.30 and h1i>=h1f*.20 and h1c>=h1lo+h1f*.20
-local cv87=h1hi>h1up+h1f*.10 and h1c<=h1up-h1f*.02
-local cv81=h1lo<h1dn-h1f*.10 and h1c>=h1dn+h1f*.02
-local h4a=h1ta and close[1]>open[1]and close[2]>open[2]and close[3]>open[3]and close[4]>open[4]
-local h4b=h1tb and close[1]<open[1]and close[2]<open[2]and close[3]<open[3]and close[4]<open[4]
-local h4p=high[1]-max(open[1],close[1])
-local h4q=min(open[1],close[1])-low[1]
-local h4top=h4a and h1hi>=h1up-h1f*.25 and(h4p>=range_1*.24 or corpo_1_fechado<=h1f*.70)and h1c<=h1c1-h1f*.12
-local h4bot=h4b and h1lo<=h1dn+h1f*.25 and(h4q>=range_1*.24 or corpo_1_fechado<=h1f*.70)and h1c>=h1c1+h1f*.12
-local h1top=(h1ta and h1hi>=h1up-h1f*.25 and(cv73 or cv87))or h4top
-local h1bot=(h1tb and h1lo<=h1dn+h1f*.25 and(cv70 or cv81))or h4bot
+-- H+ UNICO: mantem a maturidade/EMA e o extremo do H original.
+-- AVISA no toque da regiao, SEM esperar pavio, devolucao ou reversao do close atual.
+-- Ajuste: 25 = perto de 25% do range medio do extremo anterior.
+local h1prox=max(0,min(1,(tonumber(h_prox_txt)or 25)/100))
+local h1top=h1ta and h1hi>=h1up-h1f*h1prox
+local h1bot=h1tb and h1lo<=h1dn+h1f*h1prox
 local h1mem=make_series()
 local h1anc=make_series()
 local h1re=make_series()
+local h1idade=make_series()
+local h1esp=min(99,get_value(h1idade[1],99)+1)
 local h1old=get_value(h1mem[1],0)
 local cv3=get_value(h1anc[1],h1c1)
 local H_recuo=get_value(h1re[1],0)
@@ -236,10 +226,11 @@ local cv95=h1old==1 and close[1]>open[1]and close[2]>open[2]
 and high[1]>cv3+h1f*.65 and close[1]>close[2]+h1f*.15
 local cv96=h1old==-1 and close[1]<open[1]and close[2]<open[2]
 and low[1]<cv3-h1f*.65 and close[1]<close[2]-h1f*.15
-local cv69=h1top and(h1old~=1 or h1hi>cv3+h1f*1.25
-or cv95 or(H_recuo==1 and h1hi>=cv3-h1f*.15))
-local cv59=h1bot and(h1old~=-1 or h1lo<cv3-h1f*1.25
-or cv96 or(H_recuo==1 and h1lo<=cv3+h1f*.15))
+-- Repeticao do mesmo lado so apos 3 velas + o rearme original (novo extremo/retomada).
+local cv69=h1top and(h1old~=1 or(h1esp>=3 and(h1hi>cv3+h1f*1.25
+or cv95 or(H_recuo==1 and h1hi>=cv3-h1f*.15))))
+local cv59=h1bot and(h1old~=-1 or(h1esp>=3 and(h1lo<cv3-h1f*1.25
+or cv96 or(H_recuo==1 and h1lo<=cv3+h1f*.15))))
 f9s1_t=get_value(open_time,0)
 if f9s1_b~=f9s1_t then f9s1_b=f9s1_t;f9s1_d=0 end
 if rev_bar~=f9s1_t then rev_bar=f9s1_t;rev_dir=0 end
@@ -252,7 +243,9 @@ if h1lado~=0 then
 h1old=h1lado
 cv3=h1lado==1 and h1hi or h1lo
 H_recuo=0
+h1esp=0
 end
+h1idade:set(h1esp)
 h1mem:set(h1old)
 h1anc:set(cv3)
 h1re:set(H_recuo)
@@ -414,8 +407,8 @@ if f9s1_d==0 and h1lado==0 and rev_dir==0 then
 if not vbc and not caixa and compra_livre and f9bloq~=1 and curta_lado~=1 and get_value(sinal_compra,false)then f9s1_d=1
 elseif not vbv and not caixa and venda_livre and f9bloq~=-1 and curta_lado~=-1 and get_value(sinal_venda,false)then f9s1_d=-1 end
 end
-plot_shape(h1lado==1,"F9_H_TOPO",shape_style.arrowdown,shape_size.large,"#FF9800",shape_location.abovebar,0,"H","#FFFFFF")
-plot_shape(h1lado==-1,"F9_H_FUNDO",shape_style.arrowup,shape_size.large,"#00E5FF",shape_location.belowbar,0,"H","#FFFFFF")
+plot_shape(h1lado==1,"F9_HPLUS_TOPO",shape_style.arrowdown,shape_size.large,"#FF9800",shape_location.abovebar,0,"H+","#FFFFFF")
+plot_shape(h1lado==-1,"F9_HPLUS_FUNDO",shape_style.arrowup,shape_size.large,"#00E5FF",shape_location.belowbar,0,"H+","#FFFFFF")
 plot_shape(conditional(f9s1_d==1 and not pos_baleia),"F9_COMPRA",shape_style.arrowup,shape_size.large,call_color,shape_location.belowbar,0,"Compra","#fcfc04")
 plot_shape(conditional(f9s1_d==-1 and not pos_baleia),"F9_VENDA",shape_style.arrowdown,shape_size.large,put_color,shape_location.abovebar,0,"Venda","#fcfc01")
 input_group{"Barras M15",m15_cor_top=input{default="#FFFFFF",type=input.color},m15_cor_bot=input{default="#FFFFFF",type=input.color},m15_larg=input{default=2,type=input.line_width}}
