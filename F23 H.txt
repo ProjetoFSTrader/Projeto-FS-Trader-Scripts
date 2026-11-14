@@ -290,9 +290,40 @@ h1idade:set(h1esp)
 h1mem:set(h1old)
 h1anc:set(h1preco)
 h1re:set(h1recuo)
+-- POS-H REGIONAL: protege a reentrada no extremo sem calar a tendencia inteira.
+-- H+ conserva seu disparo antecipado original; este bloco age so nas setas.
+input_group{"Memoria pos-H regional",ph_on=input{default=true,type=input.boolean}}
+local ph_estado=make_series()
+local ph_extremo=make_series()
+local ph_tempo=make_series()
+local ph_lado=get_value(ph_estado[1],0)
+local ph_ref=get_value(ph_extremo[1],0)
+local ph_barras=get_value(ph_tempo[1],99)
+if u_h~=0 then
+ph_lado=u_h
+ph_ref=u_h==1 and h1hi or h1lo
+ph_barras=0
+elseif ph_lado~=0 then
+ph_barras=ph_barras+1
+end
+-- Libera se duas velas fechadas confirmam mudanca de regime pela EMA.
+local ph_virou_baixa=ph_lado==1 and close[1]<EMAA[1] and close[2]<EMAA[2] and EMAA[1]<EMAA[2]
+local ph_virou_alta=ph_lado==-1 and close[1]>EMAA[1] and close[2]>EMAA[2] and EMAA[1]>EMAA[2]
+-- Libera tambem rompimento forte do extremo, mesmo sem reversao.
+local ph_rompe_alta=ph_lado==1 and h1f>0 and close>ph_ref+h1f*.45 and close>open and abs(close-open)>=h1f*.55 and EMAA>EMAA[1]
+local ph_rompe_baixa=ph_lado==-1 and h1f>0 and close<ph_ref-h1f*.45 and close<open and abs(close-open)>=h1f*.55 and EMAA<EMAA[1]
+-- Maximo de cinco velas seguintes; os filtros originais continuam ativos.
+if ph_virou_baixa or ph_virou_alta or ph_rompe_alta or ph_rompe_baixa or ph_barras>5 then
+ph_lado=0
+end
+local ph_trava_compra=ph_on and ph_lado==1 and h1f>0 and abs(close-ph_ref)<=h1f*.85
+local ph_trava_venda=ph_on and ph_lado==-1 and h1f>0 and abs(close-ph_ref)<=h1f*.85
+ph_estado:set(ph_lado)
+ph_extremo:set(ph_ref)
+ph_tempo:set(ph_barras)
 if u_d==0 and u_h==0 and not(hv_excl and u_v~=0)then
-if get_value(sc,false)then u_d=1
-elseif get_value(sv,false)then u_d=-1 end
+if not ph_trava_compra and get_value(sc,false)then u_d=1
+elseif not ph_trava_venda and get_value(sv,false)then u_d=-1 end
 end
 sc=u_d==1 and u_h==0
 sv=u_d==-1 and u_h==0
