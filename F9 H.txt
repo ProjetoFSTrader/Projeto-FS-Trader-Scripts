@@ -396,6 +396,37 @@ end
 curta_estado:set(curta_lado)
 curta_nivel:set(curta_ref)
 curta_idade:set(curta_tempo)
+-- POS-H REGIONAL: protege a reentrada no extremo sem calar a tendencia inteira.
+-- H+ conserva seu disparo antecipado original; este bloco age so nas setas.
+input_group{"Memoria pos-H regional",ph_on=input{default=true,type=input.boolean}}
+local ph_estado=make_series()
+local ph_extremo=make_series()
+local ph_tempo=make_series()
+local ph_lado=get_value(ph_estado[1],0)
+local ph_ref=get_value(ph_extremo[1],0)
+local ph_barras=get_value(ph_tempo[1],99)
+if h1lado~=0 then
+ph_lado=h1lado
+ph_ref=h1lado==1 and h1hi or h1lo
+ph_barras=0
+elseif ph_lado~=0 then
+ph_barras=ph_barras+1
+end
+-- Libera se duas velas fechadas confirmam mudanca de regime pela EMA.
+local ph_virou_baixa=ph_lado==1 and close[1]<EMAA[1] and close[2]<EMAA[2] and EMAA[1]<EMAA[2]
+local ph_virou_alta=ph_lado==-1 and close[1]>EMAA[1] and close[2]>EMAA[2] and EMAA[1]>EMAA[2]
+-- Libera tambem rompimento forte do extremo, mesmo sem reversao.
+local ph_rompe_alta=ph_lado==1 and h1f>0 and close>ph_ref+h1f*.45 and close>open and abs(close-open)>=h1f*.55 and EMAA>EMAA[1]
+local ph_rompe_baixa=ph_lado==-1 and h1f>0 and close<ph_ref-h1f*.45 and close<open and abs(close-open)>=h1f*.55 and EMAA<EMAA[1]
+-- Maximo de cinco velas seguintes; os filtros originais continuam ativos.
+if ph_virou_baixa or ph_virou_alta or ph_rompe_alta or ph_rompe_baixa or ph_barras>5 then
+ph_lado=0
+end
+local ph_trava_compra=ph_on and ph_lado==1 and h1f>0 and abs(close-ph_ref)<=h1f*.85
+local ph_trava_venda=ph_on and ph_lado==-1 and h1f>0 and abs(close-ph_ref)<=h1f*.85
+ph_estado:set(ph_lado)
+ph_extremo:set(ph_ref)
+ph_tempo:set(ph_barras)
 input_group{"Veto barras M15",barras_on=input{default=true,type=input.boolean}}
 local m15_s=security(current_ticker_id,"15m")
 local bH=m15_s and get_value(m15_s.high[1],0)or 0
@@ -404,8 +435,8 @@ local kb=media_range_s8*.40
 local vbc=barras_on and kb>0 and((bH>0 and close[1]<=bH and close>=bH-kb)or(bL>0 and close[1]<=bL and close>=bL-kb))
 local vbv=barras_on and kb>0 and((bL>0 and close[1]>=bL and close<=bL+kb)or(bH>0 and close[1]>=bH and close<=bH+kb))
 if f9s1_d==0 and h1lado==0 and rev_dir==0 then
-if not vbc and not caixa and compra_livre and f9bloq~=1 and curta_lado~=1 and get_value(sinal_compra,false)then f9s1_d=1
-elseif not vbv and not caixa and venda_livre and f9bloq~=-1 and curta_lado~=-1 and get_value(sinal_venda,false)then f9s1_d=-1 end
+if not vbc and not caixa and compra_livre and f9bloq~=1 and curta_lado~=1 and not ph_trava_compra and get_value(sinal_compra,false)then f9s1_d=1
+elseif not vbv and not caixa and venda_livre and f9bloq~=-1 and curta_lado~=-1 and not ph_trava_venda and get_value(sinal_venda,false)then f9s1_d=-1 end
 end
 plot_shape(h1lado==1,"F9_HPLUS_TOPO",shape_style.arrowdown,shape_size.large,"#FF9800",shape_location.abovebar,0,"H+","#FFFFFF")
 plot_shape(h1lado==-1,"F9_HPLUS_FUNDO",shape_style.arrowup,shape_size.large,"#00E5FF",shape_location.belowbar,0,"H+","#FFFFFF")
